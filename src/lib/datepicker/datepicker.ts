@@ -12,16 +12,16 @@ import {
   TemplateRef,
   ViewChild,
   ViewContainerRef,
-  ViewEncapsulation,
+  ViewEncapsulation
 } from '@angular/core';
 import {
   ControlValueAccessor,
   NgControl,
 } from '@angular/forms';
-import { DateLocale } from './date-locale';
-import { DateUtil } from './date-util';
 import {
   coerceBooleanProperty,
+  DateLocale,
+  DateUtil,
   ENTER,
   SPACE,
   TAB,
@@ -524,11 +524,13 @@ export class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueA
     let el: any = event.target;
     let date: Date = this._util.parseDate(el.value, this.format);
     let d: Date = new Date(this.value);
-    if (this.type !== 'time') {
-      d.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
-    }
-    if (this.type !== 'date') {
-      d.setHours(date.getHours(), date.getMinutes());
+    if (d && date) {
+      if (this.type !== 'time') {
+        d.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+      if (this.type !== 'date') {
+        d.setHours(date.getHours(), date.getMinutes());
+      }
     }
     if (this.value !== d) {
       this.value = d ? d : null;

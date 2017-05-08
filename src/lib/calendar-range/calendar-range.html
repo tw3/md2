@@ -1,0 +1,38 @@
+<div class="md2-calendar-range">
+  <div class="md2-calendar-range-start-area md2-calendar-range-area">
+    <div class="md2-calendar-range-start-label md2-calendar-range-label">
+      From:
+      {{ startDate ? (startDate | date: 'longDate') : '(Choose a date)' }}
+    </div>
+    <div class="md2-calendar-range-start-calendar md2-calendar-range-calendar">
+      <md2-calendar
+        name="startCalendar"
+        [(ngModel)]="startDate"
+        [disabled]="isDisabled"
+        [required]="isRequired"
+        [minDate]="startMinDate"
+        [maxDate]="startMaxDate"
+        (change)="startDateChanged()"
+        #startDateControl="ngModel"
+      ></md2-calendar>
+    </div>
+  </div>
+  <div class="md2-calendar-range-end-area md2-calendar-range-area">
+    <div class="md2-calendar-range-end-label md2-calendar-range-label">
+      To:
+      {{ endDate ? (endDate | date: 'longDate') : '(Choose a date)' }}
+    </div>
+    <div class="md2-calendar-range-end-calendar md2-calendar-range-calendar">
+      <md2-calendar
+        name="endCalendar"
+        [(ngModel)]="endDate"
+        [disabled]="isDisabled"
+        [required]="isRequired"
+        [minDate]="endMinDate"
+        [maxDate]="endMaxDate"
+        (change)="endDateChanged()"
+        #endDateControl="ngModel"
+      ></md2-calendar>
+    </div>
+  </div>
+</div>

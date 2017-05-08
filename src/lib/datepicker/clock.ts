@@ -8,8 +8,7 @@ import {
   Output,
   // ViewEncapsulation
 } from '@angular/core';
-import { DateUtil } from './date-util';
-import { DateLocale } from './date-locale';
+import { DateLocale, DateUtil } from '../core';
 
 export const CLOCK_RADIUS = 50;
 export const CLOCK_INNER_RADIUS = 27.5;

@@ -17,6 +17,8 @@ export class DemoApp {
   navItems = [
     { name: 'Accordion', route: 'accordion' },
     { name: 'Autocomplete', route: 'autocomplete' },
+    { name: 'Calendar', route: 'calendar' },
+    { name: 'CalendarRange', route: 'calendarrange' },
     { name: 'Chips', route: 'chips' },
     { name: 'Collapse', route: 'collapse' },
     { name: 'Colorpicker', route: 'colorpicker' },

@@ -1,0 +1,24 @@
+.md2-calendar-range {
+  display: flex;
+}
+
+.md2-calendar-range-start-area {
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  padding-right: 22px;
+}
+
+.md2-calendar-range-end-area {
+  padding-left: 22px;
+}
+
+.md2-calendar-range-area {
+  //padding: 0 22px 10px 22px;
+}
+
+.md2-calendar-range-label {
+  padding: 10px 0;
+}
+
+.md2-calendar-range-calendar {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}

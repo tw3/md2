@@ -2,8 +2,12 @@ import { DateLocale } from './date-locale';
 
 export class DateUtil {
 
-  today(): Date {
-    return new Date();
+  today(bBeginningOfDay: boolean = false): Date {
+    const d = new Date();
+    if (bBeginningOfDay) {
+      d.setHours(0, 0, 0, 0);
+    }
+    return d;
   }
 
   _locale: DateLocale = new DateLocale();

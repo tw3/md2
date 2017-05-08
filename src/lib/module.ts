@@ -12,6 +12,8 @@ import {
 
 import { Md2AccordionModule } from './accordion/index';
 import { Md2AutocompleteModule } from './autocomplete/index';
+import { Md2CalendarModule } from './calendar/index';
+import { Md2CalendarRangeModule } from './calendar-range/index';
 import { Md2ChipsModule } from './chips/index';
 import { Md2CollapseModule } from './collapse/index';
 import { Md2ColorpickerModule } from './colorpicker/index';
@@ -31,6 +33,8 @@ import { StyleModule } from './core/style/index';
 const MD2_MODULES = [
   Md2AccordionModule,
   Md2AutocompleteModule,
+  Md2CalendarModule,
+  Md2CalendarRangeModule,
   Md2ChipsModule,
   Md2CollapseModule,
   Md2ColorpickerModule,
@@ -58,6 +62,8 @@ const MD2_MODULES = [
   imports: [
     Md2AccordionModule.forRoot(),
     Md2AutocompleteModule.forRoot(),
+    Md2CalendarModule,
+    Md2CalendarRangeModule,
     Md2ChipsModule.forRoot(),
     Md2CollapseModule.forRoot(),
     Md2ColorpickerModule.forRoot(),
