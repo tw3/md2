@@ -9,6 +9,8 @@ import {Md2Module} from 'md2';
 import {DEMO_APP_ROUTES} from './demo-app/routes';
 import {AccordionDemo} from './accordion/accordion-demo';
 import {AutocompleteDemo} from './autocomplete/autocomplete-demo';
+import {CalendarDemo} from './calendar/calendar-demo';
+import {CalendarRangeDemo} from './calendar-range/calendar-range-demo';
 import {ChipsDemo} from './chips/chips-demo';
 import {CollapseDemo} from './collapse/collapse-demo';
 import {ColorpickerDemo} from './colorpicker/colorpicker-demo';
@@ -38,6 +40,8 @@ import {TooltipDemo} from './tooltip/tooltip-demo';
     Home,
     AccordionDemo,
     AutocompleteDemo,
+    CalendarDemo,
+    CalendarRangeDemo,
     ChipsDemo,
     CollapseDemo,
     ColorpickerDemo,

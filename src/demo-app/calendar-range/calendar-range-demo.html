@@ -1,0 +1,53 @@
+<div class="demo-calendar-range">
+  <h1>Calendar Range</h1>
+  <hr />
+  <div class="card">
+    <div class="header">
+      <h3 class="title">Calendar Range</h3>
+      <form class="content">
+        <md2-calendar-range
+          [(startDate)]="startDate"
+          [(endDate)]="endDate"
+          [startMinDate]="startMinDate"
+          [startMaxDate]="startMaxDate"
+          [endMinDate]="endMinDate"
+          [endMaxDate]="endMaxDate"
+          [disabled]="isDisabled"
+          [required]="isRequired"
+        #dateRangeControl>
+        </md2-calendar-range>
+        <div class="datebox">
+          <div>Start Date Min/Max:</div>
+          <div>
+            <md2-datepicker name="startMinDate" placeholder="startMinDate"
+                            [(ngModel)]="startMinDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+          <div>
+            <md2-datepicker name="startMaxDate" placeholder="startMaxDate"
+                            [(ngModel)]="startMaxDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+        </div>
+        <div class="datebox">
+          <div>End Date Min/Max:</div>
+          <div>
+            <md2-datepicker name="endMinDate" placeholder="endMinDate"
+                            [(ngModel)]="endMinDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+          <div>
+            <md2-datepicker name="endMaxDate" placeholder="endMaxDate"
+                            [(ngModel)]="endMaxDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+        </div>
+        <div>
+          <button type="button" button="primary" (click)="setDateRange()">SET RANGE</button>
+          <button type="button" button="primary" (click)="isRequired=!isRequired">TOGGLE REQUIRED</button>
+          <button type="button" button="primary" (click)="isDisabled=!isDisabled">TOGGLE DISABLED</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
