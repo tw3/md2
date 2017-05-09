@@ -1,24 +1,24 @@
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { Md2CalendarRange } from './calendar-range';
-import { Md2CalendarModule } from '../calendar/index';
+import { Md2DateRangePicker } from './date-range-picker';
+import { Md2CalendarRangeModule } from '../calendar-range/index';
 import { StyleModule } from '../core';
 
-export * from './calendar-range';
+export * from './date-range-picker';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     StyleModule,
-    Md2CalendarModule
+    Md2CalendarRangeModule
   ],
   exports: [
-    Md2CalendarRange
+    Md2DateRangePicker
   ],
   declarations: [
-    Md2CalendarRange
+    Md2DateRangePicker
   ]
 })
-export class Md2CalendarRangeModule { }
+export class Md2DateRangePickerModule { }
