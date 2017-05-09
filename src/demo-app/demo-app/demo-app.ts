@@ -24,6 +24,7 @@ export class DemoApp {
     { name: 'Colorpicker', route: 'colorpicker' },
     { name: 'Data Table', route: 'datatable' },
     { name: 'Datepicker', route: 'datepicker' },
+    { name: 'DateRangePicker', route: 'daterangepicker' },
     { name: 'Dialog', route: 'dialog' },
     { name: 'Menu', route: 'menu' },
     { name: 'Select', route: 'select' },

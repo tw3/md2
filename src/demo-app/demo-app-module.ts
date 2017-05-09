@@ -16,6 +16,7 @@ import {CollapseDemo} from './collapse/collapse-demo';
 import {ColorpickerDemo} from './colorpicker/colorpicker-demo';
 import {DataTableDemo, DataTablePipe} from './data-table/data-table-demo';
 import {DatepickerDemo} from './datepicker/datepicker-demo';
+import {DateRangePickerDemo} from './date-range-picker/date-range-picker-demo';
 import {DialogDemo} from './dialog/dialog-demo';
 import {Home} from './home/home';
 import {MenuDemo} from './menu/menu-demo';
@@ -48,6 +49,7 @@ import {TooltipDemo} from './tooltip/tooltip-demo';
     DataTableDemo,
     DataTablePipe,
     DatepickerDemo,
+    DateRangePickerDemo,
     DialogDemo,
     MenuDemo,
     SelectDemo,

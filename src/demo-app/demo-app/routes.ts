@@ -9,6 +9,7 @@ import { CollapseDemo } from '../collapse/collapse-demo';
 import { ColorpickerDemo } from '../colorpicker/colorpicker-demo';
 import { DataTableDemo } from '../data-table/data-table-demo';
 import { DatepickerDemo } from '../datepicker/datepicker-demo';
+import { DateRangePickerDemo } from '../date-range-picker/date-range-picker-demo';
 import { DialogDemo } from '../dialog/dialog-demo';
 import { MenuDemo } from '../menu/menu-demo';
 import { SelectDemo } from '../select/select-demo';
@@ -28,6 +29,7 @@ export const DEMO_APP_ROUTES: Routes = [
   { path: 'colorpicker', component: ColorpickerDemo },
   { path: 'datatable', component: DataTableDemo },
   { path: 'datepicker', component: DatepickerDemo },
+  { path: 'daterangepicker', component: DateRangePickerDemo },
   { path: 'dialog', component: DialogDemo },
   { path: 'menu', component: MenuDemo },
   { path: 'select', component: SelectDemo },

@@ -1,0 +1,61 @@
+<div class="demo-date-range-picker">
+  <h1>Date Range Picker</h1>
+  <hr />
+  <div class="card">
+    <div class="header">
+      <h3 class="title">Date Range</h3>
+      <form class="content">
+        <md2-date-range-picker
+          [(startDateValue)]="startDateValue"
+          [(endDateValue)]="endDateValue"
+          [(startDatePicker)]="startDatePicker"
+          [(endDatePicker)]="endDatePicker"
+          [startMinDate]="startMinDate"
+          [startMaxDate]="startMaxDate"
+          [endMinDate]="endMinDate"
+          [endMaxDate]="endMaxDate"
+          [disabled]="isDisabled"
+          format="shortDate"
+          #dateRangeControl>
+        </md2-date-range-picker>
+        <p>
+          Start Date: {{startDateValue || 'N/A'}}
+        </p>
+        <p>
+          End Date: {{endDateValue || 'N/A'}}
+        </p>
+        <div class="datebox">
+          <div>Start Date Min/Max:</div>
+          <div>
+            <md2-datepicker name="startMinDate" placeholder="startMinDate"
+                            [(ngModel)]="startMinDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+          <div>
+            <md2-datepicker name="startMaxDate" placeholder="startMaxDate"
+                            [(ngModel)]="startMaxDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+        </div>
+        <div class="datebox">
+          <div>End Date Min/Max:</div>
+          <div>
+            <md2-datepicker name="endMinDate" placeholder="endMinDate"
+                            [(ngModel)]="endMinDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+          <div>
+            <md2-datepicker name="endMaxDate" placeholder="endMaxDate"
+                            [(ngModel)]="endMaxDate"
+                            type="date" format="MM/dd/y" container="dialog"></md2-datepicker>
+          </div>
+        </div>
+        <div>
+          <button type="button" button="primary" (click)="setDateRange()">SET RANGE</button>
+          <button type="button" button="primary" (click)="isDisabled=!isDisabled">TOGGLE DISABLED</button>
+          <button type="button" button="primary" (click)="reset()">RESET</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
