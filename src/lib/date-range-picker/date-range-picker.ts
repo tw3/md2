@@ -14,7 +14,6 @@ import {
   coerceBooleanProperty,
   ESCAPE,
   TAB,
-  DateUtil,
   Overlay,
   OverlayState,
   OverlayRef,
@@ -81,38 +80,33 @@ export class Md2DateRangePicker implements OnInit, OnDestroy {
   @Input() placeholder: string = 'Select Date Range';
   @Input() okLabel: string = 'Ok';
   @Input() cancelLabel: string = 'Cancel';
-  @Input() tabindex: number = 0;
 
+  @Input() startMinDate: Date = null;
   @Input()
   get startDateValue() {return this._startDateValue; }
   set startDateValue(d: Date) { this._startDateValue = d; }
-
   @Input()
   get startDatePicker() { return this._startDatePicker; }
   set startDatePicker(d: Date) {
     this._startDatePicker = d;
     this.startDatePickerChange.emit(this._startDatePicker);
   }
+  @Input() startMaxDate: Date = null;
 
+  @Input() endMinDate: Date = null;
   @Input()
   get endDateValue() { return this._endDateValue; }
   set endDateValue(d: Date) { this._endDateValue = d; }
-
   @Input()
   get endDatePicker() { return this._endDatePicker; }
   set endDatePicker(d: Date) {
     this._endDatePicker = d;
     this.endDatePickerChange.emit(this._endDatePicker);
   }
-
-  @Input() startMaxDate: Date = null;
-  @Input() startMinDate: Date = null;
-  @Input() endMinDate: Date = null;
   @Input() endMaxDate: Date = null;
 
   @Output() onOpen: EventEmitter<void> = new EventEmitter<void>();
   @Output() onClose: EventEmitter<void> = new EventEmitter<void>();
-  @Output() onSave: EventEmitter<void> = new EventEmitter<void>();
   @Output() startDateValueChange: EventEmitter<Date> = new EventEmitter<Date>();
   @Output() startDatePickerChange: EventEmitter<Date> = new EventEmitter<Date>();
   @Output() endDateValueChange: EventEmitter<Date> = new EventEmitter<Date>();
@@ -149,8 +143,7 @@ export class Md2DateRangePicker implements OnInit, OnDestroy {
 
   constructor(private _element: ElementRef,
               private overlay: Overlay,
-              private _viewContainerRef: ViewContainerRef,
-              private _util: DateUtil) {
+              private _viewContainerRef: ViewContainerRef) {
   }
 
   ngOnInit() { }
@@ -260,7 +253,6 @@ export class Md2DateRangePicker implements OnInit, OnDestroy {
       this.endDateValue = new Date(this.endDatePicker.getTime());
       this.startDateValueChange.emit(this._startDateValue);
       this.endDateValueChange.emit(this._endDateValue);
-      // this.onSave.emit();
       // Close dialog
       this._onBlur();
       this.close();

@@ -18,7 +18,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DateRangePickerDemo implements OnInit {
   isDisabled = false;
-  today: Date = null;
+
+  private today: Date = null;
 
   private _startMinDate: Date = null;
   private _startDateValue: Date = null;
