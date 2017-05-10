@@ -42,6 +42,7 @@ export declare class Md2Chips implements ControlValueAccessor, AfterContentInit 
     inputValue: string;
     selectedChip: number;
     inputFocused: boolean;
+    autoCompleteFocued: boolean;
     private _value;
     private splitRegExp;
     private templateHtmlString;
@@ -55,6 +56,7 @@ export declare class Md2Chips implements ControlValueAccessor, AfterContentInit 
      * @param value
      */
     setValue: any;
+    getFocusAutocomplete(): void;
     changeAutocomplete(value: any): void;
     ngAfterContentInit(): void;
     valueupdate(evt: Event): void;

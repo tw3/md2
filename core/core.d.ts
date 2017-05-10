@@ -42,6 +42,8 @@ export * from './selection/index';
 export { coerceBooleanProperty } from './coercion/boolean-property';
 export { coerceNumberProperty } from './coercion/number-property';
 export { CompatibilityModule, NoConflictStyleCompatibilityMode } from './compatibility/compatibility';
+export * from './date/date-locale';
+export * from './date/date-util';
 export declare class MdCoreModule {
     /** @deprecated */
     static forRoot(): ModuleWithProviders;

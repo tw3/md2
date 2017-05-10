@@ -8,11 +8,14 @@ import { NgModule } from '@angular/core';
 import { MdRippleModule, RtlModule, ObserveContentModule, PortalModule, OverlayModule, A11yModule, CompatibilityModule, } from './core/index';
 import { Md2AccordionModule } from './accordion/index';
 import { Md2AutocompleteModule } from './autocomplete/index';
+import { Md2CalendarModule } from './calendar/index';
+import { Md2CalendarRangeModule } from './calendar-range/index';
 import { Md2ChipsModule } from './chips/index';
 import { Md2CollapseModule } from './collapse/index';
 import { Md2ColorpickerModule } from './colorpicker/index';
 import { Md2DataTableModule } from './data-table/index';
 import { Md2DatepickerModule } from './datepicker/index';
+import { Md2DateRangePickerModule } from './date-range-picker/index';
 import { Md2DialogModule } from './dialog/index';
 import { Md2MenuModule } from './menu/index';
 import { Md2SelectModule } from './select/index';
@@ -25,11 +28,14 @@ import { StyleModule } from './core/style/index';
 var MD2_MODULES = [
     Md2AccordionModule,
     Md2AutocompleteModule,
+    Md2CalendarModule,
+    Md2CalendarRangeModule,
     Md2ChipsModule,
     Md2CollapseModule,
     Md2ColorpickerModule,
     Md2DataTableModule,
     Md2DatepickerModule,
+    Md2DateRangePickerModule,
     Md2DialogModule,
     Md2MenuModule,
     MdRippleModule,
@@ -57,11 +63,14 @@ Md2RootModule = __decorate([
         imports: [
             Md2AccordionModule.forRoot(),
             Md2AutocompleteModule.forRoot(),
+            Md2CalendarModule,
+            Md2CalendarRangeModule,
             Md2ChipsModule.forRoot(),
             Md2CollapseModule.forRoot(),
             Md2ColorpickerModule.forRoot(),
             Md2DataTableModule.forRoot(),
             Md2DatepickerModule,
+            Md2DateRangePickerModule,
             Md2DialogModule.forRoot(),
             Md2MenuModule.forRoot(),
             MdRippleModule.forRoot(),

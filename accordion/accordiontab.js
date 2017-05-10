@@ -31,7 +31,7 @@ var Md2AccordionTab = (function () {
         get: function () { return this._active; },
         set: function (value) {
             this._active = coerceBooleanProperty(value);
-            if (this._active) {
+            if (this._active && !this._accordion.multiple) {
                 for (var i = 0; i < this._accordion.tabs.length; i++) {
                     if (this._accordion.tabs[i] !== this) {
                         this._accordion.tabs[i].active = false;

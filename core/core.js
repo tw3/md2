@@ -71,6 +71,9 @@ export { coerceBooleanProperty } from './coercion/boolean-property';
 export { coerceNumberProperty } from './coercion/number-property';
 // Compatibility
 export { CompatibilityModule, NoConflictStyleCompatibilityMode } from './compatibility/compatibility';
+// Date
+export * from './date/date-locale';
+export * from './date/date-util';
 var MdCoreModule = MdCoreModule_1 = (function () {
     function MdCoreModule() {
     }

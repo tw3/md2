@@ -1,8 +1,7 @@
-import { ElementRef, OnDestroy, EventEmitter, TemplateRef, ViewContainerRef } from '@angular/core';
+import { AfterContentInit, ElementRef, OnDestroy, EventEmitter, TemplateRef, ViewContainerRef } from '@angular/core';
 import { ControlValueAccessor, NgControl } from '@angular/forms';
-import { DateLocale } from './date-locale';
-import { DateUtil } from './date-util';
-import { Overlay } from '../core';
+import { DateLocale, DateUtil, Overlay } from '../core';
+import { ClockView } from './clock';
 /** Change event object emitted by Md2Select. */
 export declare class Md2DateChange {
     source: Md2Datepicker;
@@ -14,7 +13,7 @@ export declare type Mode = 'auto' | 'portrait' | 'landscape';
 export declare type Container = 'inline' | 'dialog';
 export declare type PanelPositionX = 'before' | 'after';
 export declare type PanelPositionY = 'above' | 'below';
-export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
+export declare class Md2Datepicker implements AfterContentInit, OnDestroy, ControlValueAccessor {
     private _element;
     private overlay;
     private _viewContainerRef;
@@ -36,13 +35,11 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     private _required;
     private _disabled;
     private today;
-    private _min;
-    private _max;
     _years: Array<number>;
     _dates: Array<Object>;
     _isYearsVisible: boolean;
     _isCalendarVisible: boolean;
-    _clockView: string;
+    _clockView: ClockView;
     _calendarState: string;
     _weekDays: Array<any>;
     _prevMonth: number;
@@ -62,6 +59,7 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     /** Event emitted when the selected date has been changed by the user. */
     change: EventEmitter<Md2DateChange>;
     constructor(_element: ElementRef, overlay: Overlay, _viewContainerRef: ViewContainerRef, _locale: DateLocale, _util: DateUtil, _control: NgControl);
+    ngAfterContentInit(): void;
     ngOnDestroy(): void;
     placeholder: string;
     okLabel: string;
@@ -70,6 +68,7 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     enableDates: Array<Date>;
     disableDates: Array<Date>;
     disableWeekDays: Array<number>;
+    timeInterval: number;
     /** Position of the menu in the X axis. */
     positionX: PanelPositionX;
     /** Position of the menu in the Y axis. */
@@ -81,14 +80,17 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     container: Container;
     value: Date;
     date: Date;
-    time: string;
     readonly minutes: string;
     readonly hours: string;
     selected: Date;
     required: boolean;
     disabled: boolean;
+    /** The minimum selectable date. */
     min: Date;
+    private _min;
+    /** The maximum selectable date. */
     max: Date;
+    private _max;
     openOnFocus: boolean;
     isOpen: boolean;
     readonly panelOpen: boolean;
@@ -130,7 +132,7 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     /**
      * Toggle Hour visiblity
      */
-    _toggleHours(value: string): void;
+    _toggleHours(value: ClockView): void;
     /**
      * Ok Button Event
      */
@@ -161,9 +163,8 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
      * @return boolean
      */
     _isAfterMonth(): boolean;
-    _onTimeChange(event: string): void;
-    _onHourChange(event: number): void;
-    _onMinuteChange(event: number): void;
+    _onActiveTimeChange(event: Date): void;
+    _onTimeChange(event: Date): void;
     /**
      * Check the date is enabled or not
      * @param date Date Object
@@ -190,12 +191,6 @@ export declare class Md2Datepicker implements OnDestroy, ControlValueAccessor {
     registerOnChange(fn: (value: any) => void): void;
     registerOnTouched(fn: () => {}): void;
     setDisabledState(isDisabled: boolean): void;
-    /**
-     * format date
-     * @param date Date Object
-     * @return string with formatted date
-     */
-    private _formatDate(date);
     private _subscribeToBackdrop();
     /**
      *  This method creates the overlay from the provided panel's template and saves its

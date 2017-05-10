@@ -1,0 +1,121 @@
+$md2-calendar-height: 280px !default;
+$primary: #106cc8 !default;
+
+:host {
+  display: block;
+  position: relative;
+  width: 276px;
+  height: 290px;
+  overflow: hidden;
+}
+
+.md2-calendar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  width: 100%;
+  height: $md2-calendar-height;
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+  transition: 300ms;
+}
+
+.md2-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 48px;
+
+  .md2-calendar-month-year-header {
+    width: 100%;
+  }
+
+  .md2-button {
+    display: inline-block;
+    width: 48px;
+    height: 48px;
+    padding: 12px;
+    outline: none;
+    border: 0;
+    cursor: pointer;
+    background: transparent;
+    box-sizing: border-box;
+
+    svg {
+      vertical-align: top;
+    }
+
+  }
+}
+
+.md2-calendar-dates {
+  margin: 0 8px;
+
+  th {
+    width: 35px;
+    height: 16px;
+    font-weight: 500;
+    line-height: 10px;
+    opacity: 0.5;
+  }
+
+  td {
+    padding: 0;
+  }
+}
+
+.md2-calendar-day {
+  position: relative;
+  display: inline-block;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  text-align: center;
+  cursor: pointer;
+  line-height: 35px;
+  box-sizing: border-box;
+
+  &.today {
+    color: $primary;
+  }
+
+  &:hover,
+  &.focus {
+    background: darken(white, 12);
+  }
+
+  &.selected,
+  &.selected:hover {
+    color: white;
+    background: $primary;
+  }
+
+  &.disabled,
+  &.disabled:hover {
+    color: rgba(black, 0.43);
+    background: transparent;
+    pointer-events: none;
+  }
+
+  &.prev-month,
+  &.next-month {
+    visibility: hidden;
+  }
+}
+
+.disabled {
+  .md2-button {
+    cursor: default;
+  }
+  svg {
+    fill-opacity: 0.2;
+  }
+
+  .md2-calendar-month-year {
+    opacity: 0.5;
+  }
+}

@@ -4305,6 +4305,642 @@ AnimationDurations.EXITING = '195ms';
     return isNaN(parseFloat(value)) || isNaN(Number(value)) ? fallbackValue : Number(value);
 }
 
+var __decorate$30 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+/** Whether the browser supports the Intl API. */
+var SUPPORTS_INTL_API = !!Intl;
+/** Creates an array and fills it with values. */
+function range(length, valueFunction) {
+    return Array.apply(null, Array(length)).map(function (v, i) { return valueFunction(i); });
+}
+/** Date locale info. TODO(mmalerba): Integrate with i18n solution once we know what we're doing. */
+exports.DateLocale = (function () {
+    function DateLocale() {
+        var _this = this;
+        this.dates = [null].concat(SUPPORTS_INTL_API ? this._createDatesArray('numeric') : range(31, function (i) { return String(i + 1); }));
+        this.getCalendarMonthHeaderLabel = this._createFormatFunction({ month: 'long', year: 'numeric' }) ||
+            (function (date) { return _this.shortMonths[date.getMonth()] + ' ' + date.getFullYear(); });
+        this.getCalendarYearHeaderLabel = this._createFormatFunction({ year: 'numeric' }) ||
+            (function (date) { return String(date.getFullYear()); });
+        this.firstDayOfWeek = 0;
+        this.months = [
+            { full: 'January', short: 'Jan' },
+            { full: 'February', short: 'Feb' },
+            { full: 'March', short: 'Mar' },
+            { full: 'April', short: 'Apr' },
+            { full: 'May', short: 'May' },
+            { full: 'June', short: 'Jun' },
+            { full: 'July', short: 'Jul' },
+            { full: 'August', short: 'Aug' },
+            { full: 'September', short: 'Sep' },
+            { full: 'October', short: 'Oct' },
+            { full: 'November', short: 'Nov' },
+            { full: 'December', short: 'Dec' },
+        ];
+        this.fullMonths = SUPPORTS_INTL_API ? this._createMonthsArray('long') :
+            [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December'
+            ];
+        this.shortMonths = SUPPORTS_INTL_API ? this._createMonthsArray('short') :
+            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        this.narrowMonths = SUPPORTS_INTL_API ? this._createMonthsArray('narrow') :
+            ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+        this.days = [
+            { full: 'Sunday', short: 'Sun', xshort: 'S' },
+            { full: 'Monday', short: 'Mon', xshort: 'M' },
+            { full: 'Tuesday', short: 'Tue', xshort: 'T' },
+            { full: 'Wednesday', short: 'Wed', xshort: 'W' },
+            { full: 'Thursday', short: 'Thu', xshort: 'T' },
+            { full: 'Friday', short: 'Fri', xshort: 'F' },
+            { full: 'Saturday', short: 'Sat', xshort: 'S' },
+        ];
+        this.fullDays = SUPPORTS_INTL_API ? this._createDaysArray('long') :
+            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        this.shortDays = SUPPORTS_INTL_API ? this._createDaysArray('short') :
+            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        this.narrowDays = SUPPORTS_INTL_API ? this._createDaysArray('narrow') :
+            ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+    }
+    DateLocale.prototype.parseDate = function (value) {
+        if (value instanceof Date) {
+            return value;
+        }
+        var timestamp = typeof value == 'number' ? value : Date.parse(value);
+        return isNaN(timestamp) ? null : new Date(timestamp);
+    };
+    DateLocale.prototype._createDatesArray = function (format) {
+        var dtf = new Intl.DateTimeFormat(undefined, { day: format });
+        return range(31, function (i) { return dtf.format(new Date(2017, 0, i + 1)); });
+    };
+    DateLocale.prototype._createFormatFunction = function (options) {
+        if (SUPPORTS_INTL_API) {
+            var dtf_1 = new Intl.DateTimeFormat(undefined, options);
+            return function (date) { return dtf_1.format(date); };
+        }
+        return null;
+    };
+    DateLocale.prototype.getDays = function () {
+        return this.days.slice(this.firstDayOfWeek, this.days.length)
+            .concat(this.days.slice(0, this.firstDayOfWeek));
+    };
+    DateLocale.prototype.getDayLabel = function (d) { return "" + d; };
+    DateLocale.prototype.getDateLabel = function (d) {
+        return this.days[d.getDay()].short + ", " + this.months[d.getMonth()].short + " " + d.getDate();
+    };
+    DateLocale.prototype.getMonthLabel = function (m, y) { return this.months[m].full + " " + y; };
+    DateLocale.prototype.getYearLabel = function (y) { return "" + y; };
+    DateLocale.prototype._createMonthsArray = function (format) {
+        var dtf = new Intl.DateTimeFormat(undefined, { month: format });
+        return range(12, function (i) { return dtf.format(new Date(2017, i, 1)); });
+    };
+    DateLocale.prototype._createDaysArray = function (format) {
+        var dtf = new Intl.DateTimeFormat(undefined, { weekday: format });
+        return range(7, function (i) { return dtf.format(new Date(2017, 0, i + 1)); });
+    };
+    return DateLocale;
+}());
+exports.DateLocale = __decorate$30([
+    _angular_core.Injectable()
+], exports.DateLocale);
+
+var DateUtil = (function () {
+    function DateUtil() {
+        this._locale = new exports.DateLocale();
+        this.parseDateMap = {
+            'y': 0,
+            'Y': [0, -2000],
+            'M': [1, 1],
+            'n': [1, this._locale.shortMonths],
+            'N': [1, this._locale.fullMonths],
+            'd': 2,
+            'm': 4,
+            'H': 3,
+            'h': 3,
+            'K': [3, 1],
+            'k': [3, 1],
+            's': 5,
+            'S': 6,
+            'a': [3, ['am', 'pm']]
+        };
+    }
+    DateUtil.prototype.today = function (bBeginningOfDay) {
+        if (bBeginningOfDay === void 0) { bBeginningOfDay = false; }
+        var d = new Date();
+        if (bBeginningOfDay) {
+            d.setHours(0, 0, 0, 0);
+        }
+        return d;
+    };
+    DateUtil.prototype.replace = function (s, regexp, sub) {
+        return (s != null ? '' + s : '').replace(regexp, sub != null ? sub : '');
+    };
+    DateUtil.prototype.startsWith = function (base, start) {
+        return start != null && base.substr(0, start.length) == start;
+    };
+    DateUtil.prototype.isType = function (s, o) {
+        return typeof s == o;
+    };
+    DateUtil.prototype.isFunction = function (f) {
+        return this.isType(f, 'function');
+    };
+    DateUtil.prototype.isList = function (v) {
+        return !!v && v.length != null && !this.isString(v) && !this.isNode(v) && !this.isFunction(v);
+    };
+    DateUtil.prototype.isString = function (s) {
+        return this.isType(s, 'string');
+    };
+    DateUtil.prototype.isObject = function (f) {
+        return !!f && this.isType(f, 'object');
+    };
+    DateUtil.prototype.isNode = function (n) {
+        return n && n['nodeType'];
+    };
+    DateUtil.prototype.isNumber = function (n) {
+        return this.isType(n, 'number');
+    };
+    DateUtil.prototype.getFindFunc = function (findFunc) {
+        return this.isFunction(findFunc) ? findFunc : function (obj, index) {
+            if (findFunc === obj) {
+                return index;
+            }
+        };
+    };
+    DateUtil.prototype.getFindIndex = function (list, index, defaultIndex) {
+        return index == null ? defaultIndex :
+            index < 0 ? Math.max(list.length + index, 0) : Math.min(list.length, index);
+    };
+    DateUtil.prototype.find = function (list, findFunc, startIndex, endIndex) {
+        var f = this.getFindFunc(findFunc);
+        var e = this.getFindIndex(list, endIndex, list.length);
+        var r;
+        for (var i = this.getFindIndex(list, startIndex, 0); i < e; i++) {
+            if ((r = f.call(list, list[i], i)) != null) {
+                return r;
+            }
+        }
+    };
+    DateUtil.prototype.parseDate = function (date, fmt) {
+        var _this = this;
+        var indexMap = {}; // contains reGroupPosition -> typeLetter or [typeLetter, value array]
+        var reIndex = 1;
+        var timezoneOffsetMatch;
+        var timezoneIndex;
+        var match;
+        var format = this.replace(fmt, /^\?/);
+        if (format != fmt && !this.replace(date, /^\s+|\s+$/g)) {
+            return null;
+        }
+        if (match = /^\[([+-])(\d\d)(\d\d)\]\s*(.*)/.exec(format)) {
+            timezoneOffsetMatch = match;
+            format = match[4];
+        }
+        var parser = new RegExp(format.replace(/(.)(\1*)(?:\[([^\]]*)\])?/g, function (wholeMatch, placeholderChar, placeholderDigits, param) {
+            if (/[dmhkyhs]/i.test(placeholderChar)) {
+                indexMap[reIndex++] = placeholderChar;
+                var plen = placeholderDigits.length + 1;
+                return '(\\d' + (plen < 2 ? '+' : ('{1,' + plen + '}')) + ')';
+            }
+            else if (placeholderChar == 'z') {
+                timezoneIndex = reIndex;
+                reIndex += 3;
+                return '([+-])(\\d\\d)(\\d\\d)';
+            }
+            else if (/[Nna]/.test(placeholderChar)) {
+                indexMap[reIndex++] = [placeholderChar, param && param.split(',')];
+                return '([a-zA-Z\\u0080-\\u1fff]+)';
+            }
+            else if (/w/i.test(placeholderChar)) {
+                return '[a-zA-Z\\u0080-\\u1fff]+';
+            }
+            else if (/\s/.test(placeholderChar)) {
+                return '\\s+';
+            }
+            else {
+                return _this.replace(wholeMatch, /[\\\[\]\/{}()*+?.$|^-]/g, '\\$&');
+            }
+        }));
+        if (!(match = parser.exec(date))) {
+            return undefined;
+        }
+        var ctorArgs = [0, 0, 0, 0, 0, 0, 0];
+        var _loop_1 = function (i) {
+            var matchVal = match[i];
+            var indexEntry = indexMap[i];
+            if (this_1.isList(indexEntry)) {
+                var placeholderChar = indexEntry[0];
+                var mapEntry = this_1.parseDateMap[placeholderChar];
+                var ctorIndex = mapEntry[0];
+                var valList = indexEntry[1] || mapEntry[1];
+                var listValue = this_1.find(valList, function (v, index) {
+                    if (_this.startsWith(matchVal.toLowerCase(), v.toLowerCase())) {
+                        return index;
+                    }
+                });
+                if (listValue == null) {
+                    return { value: undefined };
+                }
+                if (placeholderChar == 'a') {
+                    ctorArgs[ctorIndex] += listValue * 12;
+                }
+                else {
+                    ctorArgs[ctorIndex] = listValue;
+                }
+            }
+            else if (indexEntry) {
+                var value = parseFloat(matchVal);
+                var mapEntry = this_1.parseDateMap[indexEntry];
+                if (this_1.isList(mapEntry)) {
+                    ctorArgs[mapEntry[0]] += value - mapEntry[1];
+                }
+                else {
+                    ctorArgs[mapEntry] += value;
+                }
+            }
+        };
+        var this_1 = this;
+        for (var i = 1; i < reIndex; i++) {
+            var state_1 = _loop_1(i);
+            if (typeof state_1 === "object")
+                return state_1.value;
+        }
+        var d = new Date(ctorArgs[0], ctorArgs[1], ctorArgs[2], ctorArgs[3], ctorArgs[4], ctorArgs[5], ctorArgs[6]);
+        return d;
+    };
+    DateUtil.prototype.parse = function (value, fmt) {
+        // We have no way using the native JS Date to set the parse format or locale, so we ignore these
+        // parameters.
+        var timestamp = typeof value == 'number' ? value : Date.parse(value);
+        return isNaN(timestamp) ? null : new Date(timestamp);
+    };
+    /**
+     * format date
+     * @param date Date Object
+     * @return string with formatted date
+     */
+    DateUtil.prototype.formatDate = function (date, format) {
+        if (!format || !date) {
+            return '';
+        }
+        return format
+            .replace('yy', ('00' + date.getFullYear()).slice(-2))
+            .replace('y', '' + date.getFullYear())
+            .replace('MMMM', this._locale.months[date.getMonth()].full)
+            .replace('MMM', this._locale.months[date.getMonth()].short)
+            .replace('MM', ('0' + (date.getMonth() + 1)).slice(-2))
+            .replace('M', '' + (date.getMonth() + 1))
+            .replace('dd', ('0' + date.getDate()).slice(-2))
+            .replace('d', '' + date.getDate())
+            .replace('HH', ('0' + date.getHours()).slice(-2))
+            .replace('H', '' + date.getHours())
+            .replace('mm', ('0' + date.getMinutes()).slice(-2))
+            .replace('m', '' + date.getMinutes())
+            .replace('ss', ('0' + date.getSeconds()).slice(-2))
+            .replace('s', '' + date.getSeconds());
+    };
+    DateUtil.prototype.getYear = function (date) {
+        return date.getFullYear();
+    };
+    DateUtil.prototype.getMonth = function (date) {
+        return date.getMonth();
+    };
+    DateUtil.prototype.getDate = function (date) {
+        return date.getDate();
+    };
+    DateUtil.prototype.getHour = function (date) {
+        return date.getHours();
+    };
+    DateUtil.prototype.getMinute = function (date) {
+        return date.getMinutes();
+    };
+    /**
+     * Gets the first day of the month for the given date's month.
+     * @param {Date} date
+     * @returns {Date}
+     */
+    DateUtil.prototype.getFirstDateOfWeek = function (date, firstDayOfWeek) {
+        var day = date.getDate() - ((7 + date.getDay() - firstDayOfWeek) % 7);
+        return new Date(date.getFullYear(), date.getMonth(), day, date.getHours(), date.getMinutes());
+    };
+    /**
+     * Gets the first day of the month for the given date's month.
+     * @param {Date} date
+     * @returns {Date}
+     */
+    DateUtil.prototype.getFirstDateOfMonth = function (date) {
+        return new Date(date.getFullYear(), date.getMonth(), 1, date.getHours(), date.getMinutes());
+    };
+    /**
+     * Gets the number of days in the month for the given date's month.
+     * @param date
+     * @returns {number}
+     */
+    DateUtil.prototype.getNumberOfDaysInMonth = function (date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    };
+    /**
+     * Get an arbitrary date in the month after the given date's month.
+     * @param date
+     * @returns {Date}
+     */
+    DateUtil.prototype.getDateInNextMonth = function (date) {
+        return new Date(date.getFullYear(), date.getMonth() + 1, 1, date.getHours(), date.getMinutes());
+    };
+    /**
+     * Get an arbitrary date in the month before the given date's month.
+     * @param date
+     * @returns {Date}
+     */
+    DateUtil.prototype.getDateInPreviousMonth = function (date) {
+        return new Date(date.getFullYear(), date.getMonth() - 1, 1, date.getHours(), date.getMinutes());
+    };
+    /**
+     * Gets whether two dates have the same month and year.
+     * @param {Date} d1
+     * @param {Date} d2
+     * @returns {boolean}
+     */
+    DateUtil.prototype.isSameMonthAndYear = function (d1, d2) {
+        return d1 && d2 && d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
+    };
+    /**
+     * Gets whether two dates are the same day (not not necesarily the same time).
+     * @param {Date} d1
+     * @param {Date} d2
+     * @returns {boolean}
+     */
+    DateUtil.prototype.isSameDay = function (d1, d2) {
+        return d1 && d2 && d1.getDate() == d2.getDate() && this.isSameMonthAndYear(d1, d2);
+    };
+    /**
+     * Gets whether two dates are the same hours.
+     * @param {Date} d1
+     * @param {Date} d2
+     * @returns {boolean}
+     */
+    DateUtil.prototype.isSameHour = function (d1, d2) {
+        return d1 && d2 && d1.getHours() == d2.getHours() && this.isSameDay(d1, d2);
+    };
+    /**
+     * Gets whether two dates are the same minutes.
+     * @param {Date} d1
+     * @param {Date} d2
+     * @returns {boolean}
+     */
+    DateUtil.prototype.isSameMinute = function (d1, d2) {
+        return d1 && d2 && d1.getMinutes() == d2.getMinutes() && this.isSameHour(d1, d2);
+    };
+    /**
+     * Gets whether a date is in the month immediately after some date.
+     * @param {Date} startDate The date from which to compare.
+     * @param {Date} endDate The date to check.
+     * @returns {boolean}
+     */
+    DateUtil.prototype.isInNextMonth = function (startDate, endDate) {
+        var nextMonth = this.getDateInNextMonth(startDate);
+        return this.isSameMonthAndYear(nextMonth, endDate);
+    };
+    /**
+     * Gets whether a date is in the month immediately before some date.
+     * @param {Date} startDate The date from which to compare.
+     * @param {Date} endDate The date to check.
+     * @returns {boolean}
+     */
+    DateUtil.prototype.isInPreviousMonth = function (startDate, endDate) {
+        var previousMonth = this.getDateInPreviousMonth(startDate);
+        return this.isSameMonthAndYear(endDate, previousMonth);
+    };
+    /**
+     * Gets the midpoint between two dates.
+     * @param {Date} d1
+     * @param {Date} d2
+     * @returns {Date}
+     */
+    DateUtil.prototype.getDateMidpoint = function (d1, d2) {
+        return this.createDateAtMidnight((d1.getTime() + d2.getTime()) / 2);
+    };
+    /**
+     * Gets the week of the month that a given date occurs in.
+     * @param {Date} date
+     * @returns {number} Index of the week of the month (zero-based).
+     */
+    DateUtil.prototype.getWeekOfMonth = function (date) {
+        var firstDayOfMonth = this.getFirstDateOfMonth(date);
+        return Math.floor((firstDayOfMonth.getDay() + date.getDate() - 1) / 7);
+    };
+    /**
+     * Gets a new date incremented by the given number of minutes. Number of minutes can be negative.
+     * @param {Date} date
+     * @param {number} numberOfMinutes
+     * @returns {Date}
+     */
+    DateUtil.prototype.incrementMinutes = function (date, numberOfMinutes) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + numberOfMinutes);
+    };
+    /**
+     * Gets a new date incremented by the given number of hours. Number of hours can be negative.
+     * @param {Date} date
+     * @param {number} numberOfHours
+     * @returns {Date}
+     */
+    DateUtil.prototype.incrementHours = function (date, numberOfHours) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + numberOfHours, date.getMinutes());
+    };
+    /**
+     * Gets a new date incremented by the given number of days. Number of days can be negative.
+     * @param {Date} date
+     * @param {number} numberOfDays
+     * @returns {Date}
+     */
+    DateUtil.prototype.incrementDays = function (date, numberOfDays) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + numberOfDays, date.getHours(), date.getMinutes());
+    };
+    /**
+     * Gets a new date incremented by the given number of months. Number of months can be negative.
+     * If the date of the given month does not match the target month, the date will be set to the
+     * last day of the month.
+     * @param {Date} date
+     * @param {number} numberOfMonths
+     * @returns {Date}
+     */
+    DateUtil.prototype.incrementMonths = function (date, numberOfMonths) {
+        // If the same date in the target month does not actually exist, the Date object will
+        // automatically advance *another* month by the number of missing days.
+        // For example, if you try to go from Jan. 30 to Feb. 30, you'll end up on March 2.
+        // So, we check if the month overflowed and go to the last day of the target month instead.
+        var dateInTargetMonth = new Date(date.getFullYear(), date.getMonth() + numberOfMonths, 1, date.getHours(), date.getMinutes());
+        var numberOfDaysInMonth = this.getNumberOfDaysInMonth(dateInTargetMonth);
+        if (numberOfDaysInMonth < date.getDate()) {
+            dateInTargetMonth.setDate(numberOfDaysInMonth);
+        }
+        else {
+            dateInTargetMonth.setDate(date.getDate());
+        }
+        return dateInTargetMonth;
+    };
+    /**
+     * Get the integer distance between two months. This *only* considers the month and year
+     * portion of the Date instances.
+     *
+     * @param {Date} start
+     * @param {Date} end
+     * @returns {number} Number of months between `start` and `end`. If `end` is before `start`
+     *     chronologically, this number will be negative.
+     */
+    DateUtil.prototype.getMonthDistance = function (start, end) {
+        return (12 * (end.getFullYear() - start.getFullYear())) + (end.getMonth() - start.getMonth());
+    };
+    /**
+     * Gets the last day of the month for the given date.
+     * @param {Date} date
+     * @returns {Date}
+     */
+    DateUtil.prototype.getLastDateOfMonth = function (date) {
+        return new Date(date.getFullYear(), date.getMonth(), this.getNumberOfDaysInMonth(date), date.getHours(), date.getMinutes());
+    };
+    /**
+     * Checks whether a date is valid.
+     * @param {Date} date
+     * @return {boolean} Whether the date is a valid Date.
+     */
+    DateUtil.prototype.isValidDate = function (date) {
+        return date != null && date.getTime && !isNaN(date.getTime());
+    };
+    /**
+     * Sets a date's time to midnight.
+     * @param {Date} date
+     */
+    DateUtil.prototype.setDateTimeToMidnight = function (date) {
+        if (this.isValidDate(date)) {
+            date.setHours(0, 0, 0, 0);
+        }
+    };
+    /**
+     * Creates a date with the time set to midnight.
+     * Drop-in replacement for two forms of the Date constructor:
+     * 1. No argument for Date representing now.
+     * 2. Single-argument value representing number of seconds since Unix Epoch
+     * or a Date object.
+     * @param {number|Date=} value
+     * @return {Date} New date with time set to midnight.
+     */
+    DateUtil.prototype.createDateAtMidnight = function (value) {
+        var date;
+        if (!value) {
+            date = new Date();
+        }
+        else {
+            date = new Date(value);
+        }
+        this.setDateTimeToMidnight(date);
+        return date;
+    };
+    /**
+     * Checks if a date is within a min and max range, ignoring the time component.
+     * If minDate or maxDate are not dates, they are ignored.
+     * @param {Date} date
+     * @param {Date} minDate
+     * @param {Date} maxDate
+     */
+    DateUtil.prototype.isDateWithinRange = function (date, minDate, maxDate) {
+        var dateAtMidnight = this.createDateAtMidnight(date);
+        var minDateAtMidnight = this.isValidDate(minDate) ? this.createDateAtMidnight(minDate) : null;
+        var maxDateAtMidnight = this.isValidDate(maxDate) ? this.createDateAtMidnight(maxDate) : null;
+        return (!minDateAtMidnight || minDateAtMidnight <= dateAtMidnight) &&
+            (!maxDateAtMidnight || maxDateAtMidnight >= dateAtMidnight);
+    };
+    /**
+     * Checks if a date is within a min and max range.
+     * If minDate or maxDate are not dates, they are ignored.
+     * @param {Date} date
+     * @param {Date} minDate
+     * @param {Date} maxDate
+     */
+    DateUtil.prototype.isDateWithinRange1 = function (date, minDate, maxDate) {
+        minDate = this.isValidDate(minDate) ? minDate : null;
+        maxDate = this.isValidDate(maxDate) ? maxDate : null;
+        return (!minDate || minDate <= date) &&
+            (!maxDate || maxDate >= date);
+    };
+    /**
+     * Gets a new date incremented by the given number of years. Number of years can be negative.
+     * See `incrementMonths` for notes on overflow for specific dates.
+     * @param {Date} date
+     * @param {number} numberOfYears
+     * @returns {Date}
+     */
+    DateUtil.prototype.incrementYears = function (date, numberOfYears) {
+        return this.incrementMonths(date, numberOfYears * 12);
+    };
+    /**
+     * Get the integer distance between two years. This *only* considers the year portion of the
+     * Date instances.
+     *
+     * @param {Date} start
+     * @param {Date} end
+     * @returns {number} Number of months between `start` and `end`. If `end` is before `start`
+     *     chronologically, this number will be negative.
+     */
+    DateUtil.prototype.getYearDistance = function (start, end) {
+        return end.getFullYear() - start.getFullYear();
+    };
+    /**
+     * Clamps a date between a minimum and a maximum date.
+     * @param {Date} date Date to be clamped
+     * @param {Date=} minDate Minimum date
+     * @param {Date=} maxDate Maximum date
+     * @return {Date}
+     */
+    DateUtil.prototype.clampDate = function (date, minDate, maxDate) {
+        var boundDate = date;
+        if (minDate && date < minDate) {
+            boundDate = new Date(minDate.getTime());
+        }
+        if (maxDate && date > maxDate) {
+            boundDate = new Date(maxDate.getTime());
+        }
+        return boundDate;
+    };
+    /**
+     * Extracts and parses the timestamp from a DOM node.
+     * @param  {HTMLElement} node Node from which the timestamp will be extracted.
+     * @return {number} Time since epoch.
+     */
+    DateUtil.prototype.getTimestampFromNode = function (node) {
+        if (node && node.hasAttribute('data-timestamp')) {
+            return Number(node.getAttribute('data-timestamp'));
+        }
+    };
+    /**
+     * Checks if a month is within a min and max range, ignoring the date and time components.
+     * If minDate or maxDate are not dates, they are ignored.
+     * @param {Date} date
+     * @param {Date} minDate
+     * @param {Date} maxDate
+     */
+    DateUtil.prototype.isMonthWithinRange = function (date, minDate, maxDate) {
+        var month = date.getMonth();
+        var year = date.getFullYear();
+        return (!minDate || minDate.getFullYear() < year || minDate.getMonth() <= month) &&
+            (!maxDate || maxDate.getFullYear() > year || maxDate.getMonth() >= month);
+    };
+    return DateUtil;
+}());
+
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -4355,7 +4991,7 @@ var MdCoreModule_1;
 
 //# sourceMappingURL=core.js.map
 
-var __decorate$32 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$33 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -4385,20 +5021,20 @@ exports.Md2Accordion = (function () {
     };
     return Md2Accordion;
 }());
-__decorate$32([
+__decorate$33([
     _angular_core.Input(),
     __metadata$19("design:type", Boolean),
     __metadata$19("design:paramtypes", [Object])
 ], exports.Md2Accordion.prototype, "multiple", null);
-__decorate$32([
+__decorate$33([
     _angular_core.Output(),
     __metadata$19("design:type", _angular_core.EventEmitter)
 ], exports.Md2Accordion.prototype, "close", void 0);
-__decorate$32([
+__decorate$33([
     _angular_core.Output(),
     __metadata$19("design:type", _angular_core.EventEmitter)
 ], exports.Md2Accordion.prototype, "open", void 0);
-exports.Md2Accordion = __decorate$32([
+exports.Md2Accordion = __decorate$33([
     _angular_core.Component({selector: 'md2-accordion',
         template: "<ng-content></ng-content>",
         styles: ["md2-accordion{display:block}md2-accordion-tab{position:relative;display:block;outline:0;box-sizing:border-box}md2-accordion-tab[hidden]{display:none}.md2-accordion-header{position:relative;display:block;padding-right:30px;font-weight:500;line-height:40px;text-align:left;color:rgba(0,0,0,.87);cursor:pointer;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,.12);border-radius:0;box-sizing:border-box;user-select:none}md2-accordion-tab.md2-accordion-tab-active>.md2-accordion-header{border-color:#106cc8;box-shadow:0 1px 0 #106cc8}md2-accordion-tab.md2-accordion-tab-disabled>.md2-accordion-header{pointer-events:none;color:rgba(0,0,0,.26);background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;background-position:0 bottom;border-color:transparent;box-shadow:none;cursor:default}.md2-accordion-header-icon{position:absolute;top:12px;right:8px;width:8px;height:8px;overflow:hidden;display:inline-block;border-width:0 2px 2px 0;border-style:solid;border-color:currentColor;opacity:.64;transform:rotate(45deg);transition:.3s ease-in-out}md2-accordion-tab.md2-accordion-tab-active>.md2-accordion-header>.md2-accordion-header-icon{transform:rotate(225deg);top:16px}.md2-accordion-tab-body{position:relative;overflow:hidden}.md2-accordion-tab-content{position:relative;padding:20px 0;border-bottom:1px solid rgba(0,0,0,.12)} /*# sourceMappingURL=accordion.css.map */ "],
@@ -4407,7 +5043,7 @@ exports.Md2Accordion = __decorate$32([
     })
 ], exports.Md2Accordion);
 
-var __decorate$33 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$34 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -4421,7 +5057,7 @@ exports.Md2AccordionHeader = (function () {
     }
     return Md2AccordionHeader;
 }());
-exports.Md2AccordionHeader = __decorate$33([
+exports.Md2AccordionHeader = __decorate$34([
     _angular_core.Directive({ selector: 'md2-accordion-header' })
 ], exports.Md2AccordionHeader);
 exports.Md2AccordionTab = (function () {
@@ -4435,7 +5071,7 @@ exports.Md2AccordionTab = (function () {
         get: function () { return this._active; },
         set: function (value) {
             this._active = coerceBooleanProperty(value);
-            if (this._active) {
+            if (this._active && !this._accordion.multiple) {
                 for (var i = 0; i < this._accordion.tabs.length; i++) {
                     if (this._accordion.tabs[i] !== this) {
                         this._accordion.tabs[i].active = false;
@@ -4502,21 +5138,21 @@ exports.Md2AccordionTab = (function () {
     };
     return Md2AccordionTab;
 }());
-__decorate$33([
+__decorate$34([
     _angular_core.Input(),
     __metadata$20("design:type", String)
 ], exports.Md2AccordionTab.prototype, "header", void 0);
-__decorate$33([
+__decorate$34([
     _angular_core.Input(),
     __metadata$20("design:type", Boolean),
     __metadata$20("design:paramtypes", [Object])
 ], exports.Md2AccordionTab.prototype, "active", null);
-__decorate$33([
+__decorate$34([
     _angular_core.Input(),
     __metadata$20("design:type", Boolean),
     __metadata$20("design:paramtypes", [Object])
 ], exports.Md2AccordionTab.prototype, "disabled", null);
-exports.Md2AccordionTab = __decorate$33([
+exports.Md2AccordionTab = __decorate$34([
     _angular_core.Component({selector: 'md2-accordion-tab',
         template: "\n    <div class=\"md2-accordion-header\" (click)=\"_handleClick($event)\">\n      <span>{{header}}</span>\n      <ng-content select=\"md2-accordion-header\"></ng-content>\n      <span class=\"md2-accordion-header-icon\"></span>\n    </div>\n    <div class=\"md2-accordion-tab-body\" [@slide]=\"slide\">\n      <div class=\"md2-accordion-tab-content\">\n        <ng-content></ng-content>\n      </div>\n    </div>\n  ",
         styles: ["md2-accordion{display:block}md2-accordion-tab{position:relative;display:block;outline:0;box-sizing:border-box}md2-accordion-tab[hidden]{display:none}.md2-accordion-header{position:relative;display:block;padding-right:30px;font-weight:500;line-height:40px;text-align:left;color:rgba(0,0,0,.87);cursor:pointer;white-space:nowrap;border-bottom:1px solid rgba(0,0,0,.12);border-radius:0;box-sizing:border-box;user-select:none}md2-accordion-tab.md2-accordion-tab-active>.md2-accordion-header{border-color:#106cc8;box-shadow:0 1px 0 #106cc8}md2-accordion-tab.md2-accordion-tab-disabled>.md2-accordion-header{pointer-events:none;color:rgba(0,0,0,.26);background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;background-position:0 bottom;border-color:transparent;box-shadow:none;cursor:default}.md2-accordion-header-icon{position:absolute;top:12px;right:8px;width:8px;height:8px;overflow:hidden;display:inline-block;border-width:0 2px 2px 0;border-style:solid;border-color:currentColor;opacity:.64;transform:rotate(45deg);transition:.3s ease-in-out}md2-accordion-tab.md2-accordion-tab-active>.md2-accordion-header>.md2-accordion-header-icon{transform:rotate(225deg);top:16px}.md2-accordion-tab-body{position:relative;overflow:hidden}.md2-accordion-tab-content{position:relative;padding:20px 0;border-bottom:1px solid rgba(0,0,0,.12)} /*# sourceMappingURL=accordion.css.map */ "],
@@ -4549,7 +5185,7 @@ exports.Md2AccordionTab = __decorate$33([
     __metadata$20("design:paramtypes", [exports.Md2Accordion])
 ], exports.Md2AccordionTab);
 
-var __decorate$31 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$32 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -4567,7 +5203,7 @@ exports.Md2AccordionModule = Md2AccordionModule_1 = (function () {
     };
     return Md2AccordionModule;
 }());
-exports.Md2AccordionModule = Md2AccordionModule_1 = __decorate$31([
+exports.Md2AccordionModule = Md2AccordionModule_1 = __decorate$32([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule],
         exports: MD2_ACCORDION_DIRECTIVES,
@@ -4578,7 +5214,7 @@ var Md2AccordionModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$35 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$36 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -4609,11 +5245,11 @@ exports.HighlightPipe = (function () {
     };
     return HighlightPipe;
 }());
-exports.HighlightPipe = __decorate$35([
+exports.HighlightPipe = __decorate$36([
     _angular_core.Pipe({ name: 'highlight' })
 ], exports.HighlightPipe);
 
-var __decorate$34 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$35 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -4958,64 +5594,64 @@ exports.Md2Autocomplete = (function () {
     };
     return Md2Autocomplete;
 }());
-__decorate$34([
+__decorate$35([
     _angular_core.Output(),
     __metadata$21("design:type", _angular_core.EventEmitter)
 ], exports.Md2Autocomplete.prototype, "change", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Output(),
     __metadata$21("design:type", Object)
 ], exports.Md2Autocomplete.prototype, "textChange", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", String)
 ], exports.Md2Autocomplete.prototype, "id", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", Number)
 ], exports.Md2Autocomplete.prototype, "tabindex", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", String)
 ], exports.Md2Autocomplete.prototype, "placeholder", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input('item-text'),
     __metadata$21("design:type", String)
 ], exports.Md2Autocomplete.prototype, "textKey", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input('item-value'),
     __metadata$21("design:type", String)
 ], exports.Md2Autocomplete.prototype, "valueKey", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input('min-length'),
     __metadata$21("design:type", Number)
 ], exports.Md2Autocomplete.prototype, "minLength", void 0);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", Boolean),
     __metadata$21("design:paramtypes", [Object])
 ], exports.Md2Autocomplete.prototype, "readonly", null);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", Boolean),
     __metadata$21("design:paramtypes", [Object])
 ], exports.Md2Autocomplete.prototype, "required", null);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", Boolean),
     __metadata$21("design:paramtypes", [Object])
 ], exports.Md2Autocomplete.prototype, "disabled", null);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", Array),
     __metadata$21("design:paramtypes", [Array])
 ], exports.Md2Autocomplete.prototype, "items", null);
-__decorate$34([
+__decorate$35([
     _angular_core.Input(),
     __metadata$21("design:type", Object),
     __metadata$21("design:paramtypes", [Object])
 ], exports.Md2Autocomplete.prototype, "value", null);
-exports.Md2Autocomplete = __decorate$34([
+exports.Md2Autocomplete = __decorate$35([
     _angular_core.Component({selector: 'md2-autocomplete',
         template: "<div class=\"md2-autocomplete-trigger\" [class.is-focused]=\"_inputFocused || isMenuVisible\"><input [(ngModel)]=\"_inputValue\" type=\"text\" autocomplete=\"off\" [readonly]=\"readonly\" [tabindex]=\"disabled ? -1 : tabindex\" [disabled]=\"disabled\" class=\"md2-autocomplete-input\" (focus)=\"_handleFocus()\" (blur)=\"_handleBlur()\" (keydown)=\"_handleKeydown($event)\" (change)=\"$event.stopPropagation()\"> <span class=\"md2-autocomplete-placeholder\" [class.has-value]=\"_inputValue\">{{ placeholder }} </span><svg *ngIf=\"_inputValue && !required && !disabled\" (click)=\"_onClear()\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/></svg></div><ul *ngIf=\"isMenuVisible\" class=\"md2-autocomplete-menu\" (mouseenter)=\"_handleMouseEnter()\" (mouseleave)=\"_handleMouseLeave()\"><li class=\"md2-option\" *ngFor=\"let l of _list; let i = index;\" [class.focus]=\"_focusedOption === i\" (click)=\"_selectOption($event, i)\"><div class=\"md2-text\" [innerHtml]=\"l.text | highlight:_inputValue\"></div></li></ul>",
         styles: ["md2-autocomplete{position:relative;display:block;margin:18px 0;outline:0;user-select:none;backface-visibility:hidden}md2-autocomplete.md2-autocomplete-disabled{pointer-events:none;cursor:default}.md2-autocomplete-trigger{position:relative;display:block;width:100%;padding:2px 2px 1px;border-bottom:1px solid rgba(0,0,0,.12);box-sizing:border-box;min-width:64px;min-height:26px;cursor:pointer}.md2-autocomplete-trigger.is-focused{padding-bottom:0;border-bottom:2px solid #106cc8}md2-autocomplete.ng-invalid.ng-touched:not(.md2-autocomplete-disabled) .md2-autocomplete-trigger{color:#f44336;border-bottom-color:#f44336}md2-autocomplete.md2-autocomplete-disabled .md2-autocomplete-trigger{color:rgba(0,0,0,.38);border-color:transparent;background-image:linear-gradient(to right,rgba(0,0,0,.38) 0,rgba(0,0,0,.38) 33%,transparent 0);background-position:bottom -1px left 0;background-size:4px 1px;background-repeat:repeat-x;cursor:default}md2-autocomplete.md2-autocomplete-disabled .md2-autocomplete-trigger.is-focused{padding-bottom:1px;border-bottom:1px solid transparent}.md2-autocomplete-input{width:100%;height:26px;font-size:15px;outline:0;background:0 0;border:0;box-sizing:border-box}md2-autocomplete.md2-autocomplete-disabled .md2-autocomplete-input{color:rgba(0,0,0,.38)}.md2-autocomplete-placeholder{position:absolute;right:26px;bottom:100%;left:0;max-width:100%;padding-left:3px;padding-right:0;line-height:1.4;color:rgba(0,0,0,.38);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none;z-index:1;transform:translate3d(0,26px,0) scale(1);transition:transform .4s cubic-bezier(.25,.8,.25,1);transform-origin:left top}[aria-required=true] .md2-autocomplete-placeholder::after{content:'*'}.md2-autocomplete-trigger.is-focused .md2-autocomplete-placeholder{color:#106cc8}.md2-autocomplete-trigger.is-focused .md2-autocomplete-placeholder,md2-autocomplete .md2-autocomplete-placeholder.has-value{transform:translate3d(0,6px,0) scale(.75)}.md2-autocomplete-trigger svg{position:absolute;right:0;top:0;display:block;height:100%;background:#fff;fill:currentColor;color:rgba(0,0,0,.54)}.md2-autocomplete-menu{position:absolute;left:0;top:100%;display:block;z-index:10;width:100%;margin:0;padding:8px 0;box-shadow:0 1px 3px 0 rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 2px 1px -1px rgba(0,0,0,.12);max-height:256px;min-height:48px;overflow-y:auto;background:#fff}.md2-autocomplete-menu .md2-option{position:relative;display:block;color:#212121;cursor:pointer;width:auto;padding:0 16px;height:48px;line-height:48px;transition:background 150ms linear}.md2-autocomplete-menu .md2-option.focus,.md2-autocomplete-menu .md2-option:hover{background:#ededed}.md2-autocomplete-menu .md2-option .md2-text{width:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:16px}.md2-autocomplete-menu .highlight{color:#737373} /*# sourceMappingURL=autocomplete.css.map */ "],
@@ -5045,7 +5681,7 @@ exports.Md2AutocompleteModule = Md2AutocompleteModule_1 = (function () {
     };
     return Md2AutocompleteModule;
 }());
-exports.Md2AutocompleteModule = Md2AutocompleteModule_1 = __decorate$34([
+exports.Md2AutocompleteModule = Md2AutocompleteModule_1 = __decorate$35([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, _angular_forms.FormsModule],
         exports: MD2_AUTOCOMPLETE_DIRECTIVES,
@@ -5056,13 +5692,674 @@ var Md2AutocompleteModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$36 = (this && this.__decorate) || function (decorators, target, key, desc) {
+/**
+ * This animation fades in the background color and text content of the
+ * select's options. It is time delayed to occur 100ms after the overlay
+ * panel has transformed in.
+ */
+var fadeInContent = _angular_animations.trigger('fadeInContent', [
+    _angular_animations.state('showing', _angular_animations.style({ opacity: 1 })),
+    _angular_animations.transition('void => showing', [
+        _angular_animations.style({ opacity: 0 }),
+        _angular_animations.animate("150ms 100ms cubic-bezier(0.55, 0, 0.55, 0.2)")
+    ])
+]);
+var slideCalendar = _angular_animations.trigger('slideCalendar', [
+    _angular_animations.transition('* => left', [
+        _angular_animations.animate(180, _angular_animations.keyframes([
+            _angular_animations.style({ transform: 'translateX(100%)', offset: 0.5 }),
+            _angular_animations.style({ transform: 'translateX(-100%)', offset: 0.51 }),
+            _angular_animations.style({ transform: 'translateX(0)', offset: 1 })
+        ]))
+    ]),
+    _angular_animations.transition('* => right', [
+        _angular_animations.animate(180, _angular_animations.keyframes([
+            _angular_animations.style({ transform: 'translateX(-100%)', offset: 0.5 }),
+            _angular_animations.style({ transform: 'translateX(100%)', offset: 0.51 }),
+            _angular_animations.style({ transform: 'translateX(0)', offset: 1 })
+        ]))
+    ])
+]);
+
+var __decorate$38 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 var __metadata$22 = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param$6 = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+/** Change event object emitted by Md2Calendar. */
+var Md2DateChange = (function () {
+    function Md2DateChange(source, value) {
+        this.source = source;
+        this.value = value;
+    }
+    return Md2DateChange;
+}());
+var Md2Calendar = (function () {
+    function Md2Calendar(_element, _locale, _util, _control) {
+        this._element = _element;
+        this._locale = _locale;
+        this._util = _util;
+        this._control = _control;
+        this._dateValue = null;
+        this._defaultDateShown = null;
+        this._dateShown = null;
+        this._today = null;
+        this._required = false;
+        this._disabled = false;
+        this._calendarGenerated = false;
+        this._regenerateInputs = [
+            'enableDates', 'disableDates', 'disableWeekDays',
+            'minDate', 'maxDate'
+        ];
+        this._dates = [];
+        this._prevMonth = 1;
+        this._currMonth = 2;
+        this._nextMonth = 3;
+        this._onChange = function (value) { };
+        this._onTouched = function () { };
+        this.enableDates = [];
+        this.disableDates = [];
+        this.disableWeekDays = [];
+        this.isFocused = true;
+        /** Event emitted when the selected date has been changed by the user. */
+        this.change = new _angular_core.EventEmitter();
+        if (this._control) {
+            this._control.valueAccessor = this;
+        }
+        this._today = this._util.today(true);
+        this._defaultDateShown = this._today;
+        this.setWeekDays();
+        this.dateShown = this._defaultDateShown;
+    }
+    Md2Calendar.prototype.ngOnChanges = function (changes) {
+        var _this = this;
+        if (this._calendarGenerated) {
+            for (var _i = 0, _a = this._regenerateInputs; _i < _a.length; _i++) {
+                var inputName = _a[_i];
+                if (changes.hasOwnProperty(inputName)) {
+                    window.setTimeout(function () {
+                        if (!_this._dateValue || _this._isDisabledDate(_this._dateValue)) {
+                            _this.updateDateValue(null, false, true);
+                        }
+                        _this.generateCalendar();
+                    }, 0);
+                    break;
+                }
+            }
+        }
+    };
+    Md2Calendar.prototype.ngOnInit = function () {
+        this.generateCalendar();
+    };
+    Md2Calendar.prototype.ngAfterContentInit = function () {
+    };
+    Md2Calendar.prototype.writeValue = function (value) { this.value = value; };
+    Md2Calendar.prototype.registerOnChange = function (fn) { this._onChange = fn; };
+    Md2Calendar.prototype.registerOnTouched = function (fn) { this._onTouched = fn; };
+    Md2Calendar.prototype.setDisabledState = function (isDisabled) {
+        this.disabled = isDisabled;
+    };
+    Md2Calendar.prototype.ngAfterViewInit = function () {
+    };
+    Object.defineProperty(Md2Calendar.prototype, "value", {
+        /**
+         * Get/set the date value
+         * Only the parent component should set value here
+         * Internally we set the value using updateDateValue()
+         */
+        get: function () { return this._dateValue; },
+        set: function (newVal) {
+            var newDate = this.coerceDateProperty(newVal);
+            this.updateDateValue(newDate, true, false);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Md2Calendar.prototype.updateDateValue = function (newDate, bCheckDisabled, triggerChange) {
+        this.dateShown = newDate;
+        var bIsDisabled = false;
+        var newDateValue = null;
+        if (newDate) {
+            bIsDisabled = bCheckDisabled && this._isDisabledDate(newDate);
+            if (!bIsDisabled) {
+                newDateValue = newDate;
+            }
+        }
+        this._dateValue = newDateValue;
+        if (triggerChange || bIsDisabled) {
+            this._emitChangeEvent();
+        }
+    };
+    Object.defineProperty(Md2Calendar.prototype, "defaultDateShown", {
+        get: function () { return this._defaultDateShown; },
+        set: function (newDate) {
+            this._defaultDateShown = newDate;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "dateShown", {
+        /** Get/set the date shown */
+        get: function () { return this._dateShown; },
+        set: function (newDate) {
+            if (!newDate) {
+                newDate = this._defaultDateShown;
+            }
+            newDate = new Date(newDate.getTime());
+            newDate = this._util.clampDate(newDate, this.minDate, this.maxDate);
+            var bMonthChanged = this._dateShown &&
+                this._util.getMonthDistance(this._dateShown, newDate) !== 0;
+            this._dateShown = newDate;
+            if (bMonthChanged) {
+                this.generateCalendar();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "required", {
+        get: function () { return this._required; },
+        set: function (value) { this._required = coerceBooleanProperty(value); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "disabled", {
+        get: function () { return this._disabled; },
+        set: function (value) { this._disabled = coerceBooleanProperty(value); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "minDate", {
+        get: function () { return this._minDate; },
+        set: function (date) {
+            this._minDate = this._util.parse(date);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "maxDate", {
+        get: function () { return this._maxDate; },
+        set: function (date) {
+            this._maxDate = this._util.parse(date);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "dateFocused", {
+        get: function () { return null; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "dateSelected", {
+        get: function () { return this._dateValue; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Calendar.prototype, "getMonthLabel", {
+        get: function () {
+            return this._locale.getMonthLabel(this.dateShown.getMonth(), this.dateShown.getFullYear());
+        },
+        enumerable: true,
+        configurable: true
+    });
+    /**
+     * Generate Month Calendar
+     */
+    Md2Calendar.prototype.generateCalendar = function () {
+        this._dates.length = 0;
+        var year = this.dateShown.getFullYear();
+        var month = this.dateShown.getMonth();
+        var firstDayOfMonth = this._util.getFirstDateOfMonth(this.dateShown);
+        var calMonth = this._prevMonth;
+        var date = this._util.getFirstDateOfWeek(firstDayOfMonth, this._locale.firstDayOfWeek);
+        do {
+            var week = [];
+            for (var i = 0; i < 7; i++) {
+                if (date.getDate() === 1) {
+                    if (calMonth === this._prevMonth) {
+                        calMonth = this._currMonth;
+                    }
+                    else {
+                        calMonth = this._nextMonth;
+                    }
+                }
+                week.push({
+                    date: date,
+                    index: date.getDate(),
+                    calMonth: calMonth,
+                    today: this._util.isSameDay(this._today, date),
+                    disabled: this._isDisabledDate(date)
+                });
+                date = new Date(date.getTime());
+                date.setDate(date.getDate() + 1);
+            }
+            this._dates.push(week);
+        } while ((date.getMonth() <= month) && (date.getFullYear() === year));
+        this._calendarGenerated = true;
+    };
+    /**
+     * Date Selection Event
+     * @param event Event Object
+     * @param date Date Object
+     */
+    Md2Calendar.prototype._onClickDate = function (event, date) {
+        this._stopEvent(event);
+        if (date.disabled) {
+            return;
+        }
+        if (date.calMonth === this._prevMonth) {
+            this._updateMonth(-1);
+        }
+        else if (date.calMonth === this._currMonth) {
+            this.updateDateValue(date.date, false, true);
+        }
+        else if (date.calMonth === this._nextMonth) {
+            this._updateMonth(1);
+        }
+    };
+    /**
+     * Update Month
+     * @param noOfMonths increment number of months
+     */
+    Md2Calendar.prototype._updateMonth = function (noOfMonths) {
+        this.dateShown = this._util.incrementMonths(this.dateShown, noOfMonths);
+        if (noOfMonths > 0) {
+            this.calendarState('right');
+        }
+        else {
+            this.calendarState('left');
+        }
+    };
+    /**
+     * Check is Before month enabled or not
+     * @return boolean
+     */
+    Md2Calendar.prototype._isBeforeMonth = function () {
+        return this.minDate ?
+            this._util.getMonthDistance(this.dateShown, this.minDate) < 0 :
+            true;
+    };
+    /**
+     * Check is After month enabled or not
+     * @return boolean
+     */
+    Md2Calendar.prototype._isAfterMonth = function () {
+        return this.maxDate ?
+            this._util.getMonthDistance(this.dateShown, this.maxDate) > 0 :
+            true;
+    };
+    Md2Calendar.prototype.setWeekDays = function () {
+        this._weekDays = this._locale.getDays();
+    };
+    Md2Calendar.prototype.coerceDateProperty = function (value) {
+        var newDate = null;
+        if (value) {
+            if (this._util.isValidDate(value)) {
+                newDate = value;
+            }
+            else {
+                var timestamp = Date.parse(value);
+                if (!isNaN(timestamp)) {
+                    newDate = new Date(timestamp);
+                }
+            }
+        }
+        return newDate;
+    };
+    /**
+     * Check the date is enabled or not
+     * @param date Date Object
+     * @return boolean
+     */
+    Md2Calendar.prototype._isDisabledDate = function (date) {
+        for (var _i = 0, _a = this.enableDates; _i < _a.length; _i++) {
+            var d = _a[_i];
+            if (this._util.isSameDay(date, d)) {
+                return false;
+            }
+        }
+        for (var _b = 0, _c = this.disableDates; _b < _c.length; _b++) {
+            var d = _c[_b];
+            if (this._util.isSameDay(date, d)) {
+                return true;
+            }
+        }
+        for (var _d = 0, _e = this.disableWeekDays; _d < _e.length; _d++) {
+            var d = _e[_d];
+            if (date.getDay() === d) {
+                return true;
+            }
+        }
+        return !this._util.isDateWithinRange(date, this.minDate, this.maxDate);
+    };
+    /** Emits an event when the user selects a date. */
+    Md2Calendar.prototype._emitChangeEvent = function () {
+        this._onTouched();
+        this._onChange(this.value);
+        this.change.emit(new Md2DateChange(this, this.value));
+    };
+    Md2Calendar.prototype._stopEvent = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+    };
+    Md2Calendar.prototype.calendarState = function (direction) {
+        var _this = this;
+        this._calendarState = direction;
+        setTimeout(function () { return _this._calendarState = ''; }, 180);
+    };
+    return Md2Calendar;
+}());
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Array)
+], Md2Calendar.prototype, "enableDates", void 0);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Array)
+], Md2Calendar.prototype, "disableDates", void 0);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Array)
+], Md2Calendar.prototype, "disableWeekDays", void 0);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Object)
+], Md2Calendar.prototype, "isFocused", void 0);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Object),
+    __metadata$22("design:paramtypes", [Object])
+], Md2Calendar.prototype, "value", null);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Object),
+    __metadata$22("design:paramtypes", [Date])
+], Md2Calendar.prototype, "defaultDateShown", null);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Boolean),
+    __metadata$22("design:paramtypes", [Object])
+], Md2Calendar.prototype, "required", null);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Boolean),
+    __metadata$22("design:paramtypes", [Object])
+], Md2Calendar.prototype, "disabled", null);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Date),
+    __metadata$22("design:paramtypes", [Date])
+], Md2Calendar.prototype, "minDate", null);
+__decorate$38([
+    _angular_core.Input(),
+    __metadata$22("design:type", Date),
+    __metadata$22("design:paramtypes", [Date])
+], Md2Calendar.prototype, "maxDate", null);
+__decorate$38([
+    _angular_core.Output(),
+    __metadata$22("design:type", _angular_core.EventEmitter)
+], Md2Calendar.prototype, "change", void 0);
+Md2Calendar = __decorate$38([
+    _angular_core.Component({selector: 'md2-calendar',
+        template: "<div class=\"md2-calendar active\" [class.disabled]=\"disabled\"><div class=\"md2-calendar-header\"><div class=\"md2-button\" [class.disabled]=\"!_isBeforeMonth() || disabled\" (click)=\"_isBeforeMonth() && _updateMonth(-1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z\"></path></svg></div><div class=\"md2-calendar-month-year\" [@slideCalendar]=\"_calendarState\">{{ getMonthLabel }}</div><div class=\"md2-button\" [class.disabled]=\"!_isAfterMonth() || disabled\" (click)=\"_isAfterMonth() && _updateMonth(1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z\"></path></svg></div></div><table class=\"md2-calendar-dates\"><thead><tr><th *ngFor=\"let day of _weekDays\">{{day.xshort}}</th></tr></thead><tbody [@slideCalendar]=\"_calendarState\"><tr *ngFor=\"let w of _dates\"><td *ngFor=\"let d of w\"><div class=\"md2-calendar-day\" [class.today]=\"d.today\" [class.focus]=\"_util.isSameDay(dateFocused, d.date)\" [class.selected]=\"_util.isSameDay(dateSelected, d.date)\" [class.disabled]=\"d.disabled || disabled\" [class.prev-month]=\"d.calMonth===_prevMonth\" [class.curr-month]=\"d.calMonth===_currMonth\" [class.next-month]=\"d.calMonth===_nextMonth\" (click)=\"_onClickDate($event,d)\">{{d.index}}</div></td></tr></tbody></table></div>",
+        styles: [":host{display:block;position:relative;width:276px;height:290px;overflow:hidden}.md2-calendar{position:absolute;top:0;right:0;display:block;width:100%;height:280px;font-size:12px;font-weight:400;text-align:center;transition:.3s}.md2-calendar-header{display:flex;justify-content:space-between;font-size:14px;font-weight:700;text-align:center;line-height:48px}.md2-calendar-header .md2-calendar-month-year-header{width:100%}.md2-calendar-header .md2-button{display:inline-block;width:48px;height:48px;padding:12px;outline:0;border:0;cursor:pointer;background:0 0;box-sizing:border-box}.md2-calendar-header .md2-button svg{vertical-align:top}.md2-calendar-dates{margin:0 8px}.md2-calendar-dates th{width:35px;height:16px;font-weight:500;line-height:10px;opacity:.5}.md2-calendar-dates td{padding:0}.md2-calendar-day{position:relative;display:inline-block;width:35px;height:35px;border-radius:50%;text-align:center;cursor:pointer;line-height:35px;box-sizing:border-box}.md2-calendar-day.today{color:#106cc8}.md2-calendar-day.focus,.md2-calendar-day:hover{background:#e0e0e0}.md2-calendar-day.selected,.md2-calendar-day.selected:hover{color:#fff;background:#106cc8}.md2-calendar-day.disabled,.md2-calendar-day.disabled:hover{color:rgba(0,0,0,.43);background:0 0;pointer-events:none}.md2-calendar-day.next-month,.md2-calendar-day.prev-month{visibility:hidden}.disabled .md2-button{cursor:default}.disabled svg{fill-opacity:.2}.disabled .md2-calendar-month-year{opacity:.5} /*# sourceMappingURL=calendar.css.map */ "],
+        host: {
+            'role': 'calendar'
+        },
+        animations: [
+            slideCalendar
+        ]
+    }),
+    __param$6(3, _angular_core.Self()), __param$6(3, _angular_core.Optional()),
+    __metadata$22("design:paramtypes", [_angular_core.ElementRef,
+        exports.DateLocale,
+        DateUtil,
+        _angular_forms.NgControl])
+], Md2Calendar);
+
+var __decorate$37 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Md2CalendarModule = (function () {
+    function Md2CalendarModule() {
+    }
+    return Md2CalendarModule;
+}());
+Md2CalendarModule = __decorate$37([
+    _angular_core.NgModule({
+        imports: [
+            _angular_common.CommonModule,
+            exports.StyleModule
+        ],
+        exports: [
+            Md2Calendar
+        ],
+        declarations: [
+            Md2Calendar
+        ],
+        providers: [exports.DateLocale, DateUtil]
+    })
+], Md2CalendarModule);
+
+var __decorate$40 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata$23 = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var Md2CalendarRange = (function () {
+    function Md2CalendarRange() {
+        this._startDate = null;
+        this._endDate = null;
+        this._startMinDate = null;
+        this._startMaxDate = null;
+        this._endMinDate = null;
+        this._endMaxDate = null;
+        this.required = false;
+        this.disabled = false;
+        this.startDateChange = new _angular_core.EventEmitter();
+        this.endDateChange = new _angular_core.EventEmitter();
+        this.startMinDateChange = new _angular_core.EventEmitter();
+        this.startMaxDateChange = new _angular_core.EventEmitter();
+        this.endMinDateChange = new _angular_core.EventEmitter();
+        this.endMaxDateChange = new _angular_core.EventEmitter();
+    }
+    Md2CalendarRange.prototype.ngOnInit = function () { };
+    Object.defineProperty(Md2CalendarRange.prototype, "startMinDate", {
+        get: function () {
+            return this._startMinDate;
+        },
+        set: function (d) {
+            this._startMinDate = d;
+            this.startMinDateChange.emit(this.startDate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2CalendarRange.prototype, "startDate", {
+        get: function () {
+            return this._startDate;
+        },
+        set: function (d) {
+            this._startDate = d;
+            this.endMinDate = d; // end date cannot be before the start date
+            this.startDateChange.emit(this.startDate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2CalendarRange.prototype, "startMaxDate", {
+        get: function () {
+            return this._startMaxDate;
+        },
+        set: function (d) {
+            this._startMaxDate = d;
+            this.startMaxDateChange.emit(this.startDate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2CalendarRange.prototype, "endMinDate", {
+        get: function () {
+            return this._endMinDate;
+        },
+        set: function (d) {
+            this._endMinDate = d;
+            this.endMinDateChange.emit(this.startDate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2CalendarRange.prototype, "endDate", {
+        get: function () {
+            return this._endDate;
+        },
+        set: function (d) {
+            this._endDate = d;
+            this.startMaxDate = d; // start date cannot be after the end date
+            this.endDateChange.emit(this.endDate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2CalendarRange.prototype, "endMaxDate", {
+        get: function () {
+            return this._endMaxDate;
+        },
+        set: function (d) {
+            this._endMaxDate = d;
+            this.endMaxDateChange.emit(this.startDate);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Md2CalendarRange.prototype.startDateChanged = function () {
+    };
+    Md2CalendarRange.prototype.endDateChanged = function () {
+    };
+    return Md2CalendarRange;
+}());
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Boolean)
+], Md2CalendarRange.prototype, "required", void 0);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Boolean)
+], Md2CalendarRange.prototype, "disabled", void 0);
+__decorate$40([
+    _angular_core.Output(),
+    __metadata$23("design:type", _angular_core.EventEmitter)
+], Md2CalendarRange.prototype, "startDateChange", void 0);
+__decorate$40([
+    _angular_core.Output(),
+    __metadata$23("design:type", _angular_core.EventEmitter)
+], Md2CalendarRange.prototype, "endDateChange", void 0);
+__decorate$40([
+    _angular_core.Output(),
+    __metadata$23("design:type", _angular_core.EventEmitter)
+], Md2CalendarRange.prototype, "startMinDateChange", void 0);
+__decorate$40([
+    _angular_core.Output(),
+    __metadata$23("design:type", _angular_core.EventEmitter)
+], Md2CalendarRange.prototype, "startMaxDateChange", void 0);
+__decorate$40([
+    _angular_core.Output(),
+    __metadata$23("design:type", _angular_core.EventEmitter)
+], Md2CalendarRange.prototype, "endMinDateChange", void 0);
+__decorate$40([
+    _angular_core.Output(),
+    __metadata$23("design:type", _angular_core.EventEmitter)
+], Md2CalendarRange.prototype, "endMaxDateChange", void 0);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Object),
+    __metadata$23("design:paramtypes", [Date])
+], Md2CalendarRange.prototype, "startMinDate", null);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Object),
+    __metadata$23("design:paramtypes", [Date])
+], Md2CalendarRange.prototype, "startDate", null);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Object),
+    __metadata$23("design:paramtypes", [Date])
+], Md2CalendarRange.prototype, "startMaxDate", null);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Object),
+    __metadata$23("design:paramtypes", [Date])
+], Md2CalendarRange.prototype, "endMinDate", null);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Object),
+    __metadata$23("design:paramtypes", [Date])
+], Md2CalendarRange.prototype, "endDate", null);
+__decorate$40([
+    _angular_core.Input(),
+    __metadata$23("design:type", Object),
+    __metadata$23("design:paramtypes", [Date])
+], Md2CalendarRange.prototype, "endMaxDate", null);
+Md2CalendarRange = __decorate$40([
+    _angular_core.Component({selector: 'md2-calendar-range',
+        template: "<div class=\"md2-calendar-range\"><div class=\"md2-calendar-range-start-area md2-calendar-range-area\"><div class=\"md2-calendar-range-start-label md2-calendar-range-label\">From: {{ startDate ? (startDate | date: 'longDate') : '(Choose a date)' }}</div><div class=\"md2-calendar-range-start-calendar md2-calendar-range-calendar\"><md2-calendar name=\"startCalendar\" [(ngModel)]=\"startDate\" [disabled]=\"isDisabled\" [required]=\"isRequired\" [minDate]=\"startMinDate\" [maxDate]=\"startMaxDate\" (change)=\"startDateChanged()\" #startDateControl=\"ngModel\"></md2-calendar></div></div><div class=\"md2-calendar-range-end-area md2-calendar-range-area\"><div class=\"md2-calendar-range-end-label md2-calendar-range-label\">To: {{ endDate ? (endDate | date: 'longDate') : '(Choose a date)' }}</div><div class=\"md2-calendar-range-end-calendar md2-calendar-range-calendar\"><md2-calendar name=\"endCalendar\" [(ngModel)]=\"endDate\" [disabled]=\"isDisabled\" [required]=\"isRequired\" [minDate]=\"endMinDate\" [maxDate]=\"endMaxDate\" (change)=\"endDateChanged()\" #endDateControl=\"ngModel\"></md2-calendar></div></div></div>",
+        styles: [".md2-calendar-range{display:flex}.md2-calendar-range-start-area{border-right:1px solid rgba(0,0,0,.12);padding-right:22px}.md2-calendar-range-end-area{padding-left:22px}.md2-calendar-range-label{padding:10px 0}.md2-calendar-range-calendar{border:1px solid rgba(0,0,0,.12)} /*# sourceMappingURL=calendar-range.css.map */ "],
+        host: {
+            'role': 'calendar-range'
+        }
+    }),
+    __metadata$23("design:paramtypes", [])
+], Md2CalendarRange);
+
+var __decorate$39 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Md2CalendarRangeModule = (function () {
+    function Md2CalendarRangeModule() {
+    }
+    return Md2CalendarRangeModule;
+}());
+Md2CalendarRangeModule = __decorate$39([
+    _angular_core.NgModule({
+        imports: [
+            _angular_common.CommonModule,
+            _angular_forms.FormsModule,
+            exports.StyleModule,
+            Md2CalendarModule
+        ],
+        exports: [
+            Md2CalendarRange
+        ],
+        declarations: [
+            Md2CalendarRange
+        ]
+    })
+], Md2CalendarRangeModule);
+
+var __decorate$41 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata$24 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var Chip = (function () {
@@ -5099,7 +6396,7 @@ exports.Md2Chips = (function () {
         this.addOnSpace = false;
         this.allowedPattern = /.+/;
         this.pasteSplitPattern = ',';
-        this.placeholder = 'Add New';
+        this.placeholder = '';
         this.isAutoComplete = false;
         this.isRemovable = true;
         this.disabled = false;
@@ -5118,6 +6415,7 @@ exports.Md2Chips = (function () {
         this.inputValue = '';
         this.selectedChip = -1;
         this.inputFocused = false;
+        this.autoCompleteFocued = false;
         this._value = '';
         this.isEmptyAutoComplete = true;
     }
@@ -5159,6 +6457,9 @@ exports.Md2Chips = (function () {
         enumerable: true,
         configurable: true
     });
+    Md2Chips.prototype.getFocusAutocomplete = function () {
+        this._onTouched();
+    };
     Md2Chips.prototype.changeAutocomplete = function (value) {
         if (value) {
             var objText = value.value;
@@ -5242,6 +6543,10 @@ exports.Md2Chips = (function () {
         if (!this.isAutoComplete) {
             this.elementRef.nativeElement.querySelector('input.chip-input').focus();
         }
+        else {
+            this.autoCompleteFocued = true;
+            this._onTouched();
+        }
         this._resetSelected();
     };
     Md2Chips.prototype.inputBlurred = function (event) {
@@ -5296,12 +6601,14 @@ exports.Md2Chips = (function () {
         return chips.filter(function (chip) { return !!chip; });
     };
     Md2Chips.prototype._isValid = function (chipString) {
-        if (chipString) {
-            var isExist = void 0;
-            isExist = this.chipItemList.filter(function (chip) { return chip.text === chipString; });
-            if (this.chipItemList.indexOf(chipString) === -1 && (isExist.length ? false : true)) {
-                return this.allowedPattern.test(chipString);
-            }
+        var typeString = typeof chipString;
+        if (typeString === 'string') {
+            chipString = chipString.trim();
+        }
+        var isExist;
+        isExist = this.chipItemList.filter(function (chip) { return chip.text === chipString; });
+        if (this.chipItemList.indexOf(chipString) === -1 && (isExist.length ? false : true)) {
+            return this.allowedPattern.test(chipString);
         }
     };
     /**
@@ -5396,113 +6703,113 @@ exports.Md2Chips = (function () {
     Md2Chips.prototype.registerOnTouched = function (fn) { this._onTouched = fn; };
     return Md2Chips;
 }());
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Number)
+    __metadata$24("design:type", Number)
 ], exports.Md2Chips.prototype, "tabindex", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "addOnComma", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "addOnEnter", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "addOnPaste", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "addOnSpace", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", RegExp)
+    __metadata$24("design:type", RegExp)
 ], exports.Md2Chips.prototype, "allowedPattern", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Array)
+    __metadata$24("design:type", Array)
 ], exports.Md2Chips.prototype, "ngModel", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "pasteSplitPattern", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "placeholder", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Array)
+    __metadata$24("design:type", Array)
 ], exports.Md2Chips.prototype, "autocompleteDataList", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "isAutoComplete", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "isRemovable", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Boolean)
+    __metadata$24("design:type", Boolean)
 ], exports.Md2Chips.prototype, "disabled", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Number)
+    __metadata$24("design:type", Number)
 ], exports.Md2Chips.prototype, "minChips", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Number)
+    __metadata$24("design:type", Number)
 ], exports.Md2Chips.prototype, "maxChips", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "type", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "id", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input('autocomplete-item-text'),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "autocompleteItemText", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input('autocomplete-item-value'),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "autocompleteItemValue", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input('item-text'),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "textKey", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input('item-value'),
-    __metadata$22("design:type", String)
+    __metadata$24("design:type", String)
 ], exports.Md2Chips.prototype, "valueKey", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Output(),
-    __metadata$22("design:type", _angular_core.EventEmitter)
+    __metadata$24("design:type", _angular_core.EventEmitter)
 ], exports.Md2Chips.prototype, "change", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.ViewChild('chipInputForm'),
-    __metadata$22("design:type", _angular_forms.NgForm)
+    __metadata$24("design:type", _angular_forms.NgForm)
 ], exports.Md2Chips.prototype, "chipInputForm", void 0);
-__decorate$36([
+__decorate$41([
     _angular_core.Input(),
-    __metadata$22("design:type", Object),
-    __metadata$22("design:paramtypes", [Object])
+    __metadata$24("design:type", Object),
+    __metadata$24("design:paramtypes", [Object])
 ], exports.Md2Chips.prototype, "value", null);
-__decorate$36([
+__decorate$41([
     _angular_core.HostListener('focus'),
-    __metadata$22("design:type", Function),
-    __metadata$22("design:paramtypes", []),
-    __metadata$22("design:returntype", void 0)
+    __metadata$24("design:type", Function),
+    __metadata$24("design:paramtypes", []),
+    __metadata$24("design:returntype", void 0)
 ], exports.Md2Chips.prototype, "_handleFocus", null);
-exports.Md2Chips = __decorate$36([
+exports.Md2Chips = __decorate$41([
     _angular_core.Component({
         selector: 'md2-chips',
-        template: "<div class=\"md2-chips-container\" [class.md2-chip-disabled]=\"disabled\" [class.md2-chip-remove]=\"!isRemovable\"><span *ngFor=\"let chip of chipItemList; let i = index\" class=\"md2-chip\" [class.active]=\"selectedChip === i\"><span>{{chip.text}}</span> <span [innerHTML]=\"templateHtmlString\"></span> <svg (click)=\"removeSelectedChip(i)\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" *ngIf=\"isRemovable\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/></svg></span><ng-content select=\".md2-template\"></ng-content><form #chipInputForm=\"ngForm\" class=\"chip-input-form\"><input *ngIf=\"!isAutoComplete\" class=\"chip-input\" [disabled]=\"disabled\" [type]=\"type\" [(ngModel)]=\"inputValue\" name=\"chipInput\" [placeholder]=\"placeholder\" (paste)=\"inputPaste($event)\" (keydown)=\"inputChanged($event)\" (blur)=\"inputBlurred($event)\" (focus)=\"inputFocus()\"><div *ngIf=\"isAutoComplete\"><md2-autocomplete [items]=\"autocompleteDataList\" [item-text]=\"autocompleteItemText\" [(ngModel)]=\"item\" name=\"autocomplete\" [disabled]=\"disabled\" (textChange)=\"valueupdate($event)\" (change)=\"changeAutocomplete($event)\" [placeholder]=\"placeholder\" (keydown)=\"inputChanged($event)\"></md2-autocomplete></div></form></div><div class=\"chip-error\" *ngIf=\"this.chipItemList.length<this.minChips\">Minimum {{minChips}} chip required.</div><div class=\"chip-error\" *ngIf=\"this.chipItemList.length>=this.maxChips\">You are able to add Maximum {{maxChips}} chip.</div>",
+        template: "<div class=\"md2-chips-container\" [class.md2-chip-disabled]=\"disabled\" [class.md2-chip-remove]=\"!isRemovable\"><span *ngFor=\"let chip of chipItemList; let i = index\" class=\"md2-chip\" [class.active]=\"selectedChip === i\"><span>{{chip.text}}</span> <span [innerHTML]=\"templateHtmlString\"></span> <svg (click)=\"removeSelectedChip(i)\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" *ngIf=\"isRemovable\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/></svg></span><ng-content select=\".md2-template\"></ng-content><form #chipInputForm=\"ngForm\" class=\"chip-input-form\"><input *ngIf=\"!isAutoComplete\" class=\"chip-input\" [disabled]=\"disabled\" [type]=\"type\" [(ngModel)]=\"inputValue\" name=\"chipInput\" [placeholder]=\"placeholder\" (paste)=\"inputPaste($event)\" (keydown)=\"inputChanged($event)\" (blur)=\"inputBlurred($event)\" (focus)=\"inputFocus()\"><div *ngIf=\"isAutoComplete\"><md2-autocomplete [items]=\"autocompleteDataList\" [item-text]=\"autocompleteItemText\" [(ngModel)]=\"item\" name=\"autocomplete\" [disabled]=\"disabled\" (textChange)=\"valueupdate($event)\" (change)=\"changeAutocomplete($event)\" [placeholder]=\"placeholder\" (keydown)=\"inputChanged($event)\" (click)=\"getFocusAutocomplete()\"></md2-autocomplete></div></form></div><div class=\"chip-error\" *ngIf=\"this.chipItemList.length<this.minChips\">Minimum {{minChips}} chip required.</div><div class=\"chip-error\" *ngIf=\"this.chipItemList.length>=this.maxChips\">You are able to add Maximum {{maxChips}} chip.</div>",
         styles: [".template-content{display:inline}md2-chips{outline:0}md2-chips .md2-chips-container{display:block;box-shadow:0 1px #ccc;padding:5px 0;margin-bottom:10px;min-height:50px;box-sizing:border-box;clear:both}md2-chips .md2-chips-container::after{clear:both;content:'';display:table}md2-chips.chip-input-focus .md2-chips-container{box-shadow:0 2px #0d8bff}md2-chips .md2-chip-disabled{cursor:default}md2-chips md2-autocomplete{margin:0}md2-chips .md2-autocomplete-wrap{border-bottom:0!important}.md2-chip-remove .md2-chip{padding:0 12px}.md2-chip{font-size:14px;position:relative;cursor:default;border-radius:16px;display:block;height:32px;line-height:32px;margin:8px 8px 0 0;padding:0 28px 0 12px;float:left;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;max-width:100%;background:#e0e0e0;color:#424242;white-space:nowrap;overflow:hidden;-ms-text-overflow:ellipsis;-o-text-overflow:ellipsis;text-overflow:ellipsis}.md2-chip.active{color:#fff;background:#0d8bff}.md2-chip.active svg{color:rgba(255,255,255,.87)}.md2-chip svg{position:absolute;top:4px;right:4px;cursor:pointer;display:inline-block;overflow:hidden;fill:currentColor;color:rgba(0,0,0,.54)}.md2-template{display:none}.chip-input-disabled{pointer-events:none;cursor:default}.chip-input-form{display:inline-block;height:32px;margin:8px 8px 0 0}.chip-remove{cursor:pointer;display:inline-block;padding:0 3px;color:#616161;font-size:30px;vertical-align:top;line-height:21px;font-family:serif}.chip-input{display:inline-block;width:auto;border:0;outline:0;height:32px;line-height:32px;font-size:16px;background:0 0}.chip-error{font-size:13px;color:#fd0f0f}.md2-chips-container .chip-input-form .md2-autocomplete-wrap{border-bottom:0}.md2-chips-container .md2-autocomplete-wrap.is-focused .md2-autocomplete-placeholder{display:none}.md2-chips-container .md2-autocomplete-wrap .md2-autocomplete-placeholder.has-value{display:none}.md2-chips-container .md2-autocomplete-wrap svg{display:none}.md2-chips-container .md2-autocomplete-wrap .md2-autocomplete-input{height:32px;font-size:16px} /*# sourceMappingURL=chips.css.map */ "],
         providers: [MD2_CHIPS_CONTROL_VALUE_ACCESSOR],
         host: {
@@ -5513,7 +6820,7 @@ exports.Md2Chips = __decorate$36([
         },
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __metadata$22("design:paramtypes", [_angular_core.ElementRef])
+    __metadata$24("design:paramtypes", [_angular_core.ElementRef])
 ], exports.Md2Chips);
 var MD2_CHIPS_DIRECTIVES = [exports.Md2Chips];
 exports.Md2ChipsModule = Md2ChipsModule_1 = (function () {
@@ -5527,7 +6834,7 @@ exports.Md2ChipsModule = Md2ChipsModule_1 = (function () {
     };
     return Md2ChipsModule;
 }());
-exports.Md2ChipsModule = Md2ChipsModule_1 = __decorate$36([
+exports.Md2ChipsModule = Md2ChipsModule_1 = __decorate$41([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, _angular_forms.FormsModule, exports.Md2AutocompleteModule],
         declarations: MD2_CHIPS_DIRECTIVES,
@@ -5538,13 +6845,13 @@ var Md2ChipsModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$37 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$42 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$23 = (this && this.__metadata) || function (k, v) {
+var __metadata$25 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.Md2Collapse = (function () {
@@ -5600,20 +6907,20 @@ exports.Md2Collapse = (function () {
     };
     return Md2Collapse;
 }());
-__decorate$37([
+__decorate$42([
     _angular_core.Output(),
-    __metadata$23("design:type", _angular_core.EventEmitter)
+    __metadata$25("design:type", _angular_core.EventEmitter)
 ], exports.Md2Collapse.prototype, "collapsed", void 0);
-__decorate$37([
+__decorate$42([
     _angular_core.Output(),
-    __metadata$23("design:type", _angular_core.EventEmitter)
+    __metadata$25("design:type", _angular_core.EventEmitter)
 ], exports.Md2Collapse.prototype, "expanded", void 0);
-__decorate$37([
+__decorate$42([
     _angular_core.Input(),
-    __metadata$23("design:type", Boolean),
-    __metadata$23("design:paramtypes", [Boolean])
+    __metadata$25("design:type", Boolean),
+    __metadata$25("design:paramtypes", [Boolean])
 ], exports.Md2Collapse.prototype, "collapse", null);
-exports.Md2Collapse = __decorate$37([
+exports.Md2Collapse = __decorate$42([
     _angular_core.Directive({
         selector: '[collapse]',
         host: {
@@ -5639,7 +6946,7 @@ exports.Md2CollapseModule = Md2CollapseModule_1 = (function () {
     };
     return Md2CollapseModule;
 }());
-exports.Md2CollapseModule = Md2CollapseModule_1 = __decorate$37([
+exports.Md2CollapseModule = Md2CollapseModule_1 = __decorate$42([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule],
         exports: MD2_COLLAPSE_DIRECTIVES,
@@ -5650,7 +6957,7 @@ var Md2CollapseModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$39 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$44 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -5863,20 +7170,20 @@ var ColorUtil = (function () {
     };
     return ColorUtil;
 }());
-ColorUtil = __decorate$39([
+ColorUtil = __decorate$44([
     _angular_core.Injectable()
 ], ColorUtil);
 
-var __decorate$38 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$43 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$24 = (this && this.__metadata) || function (k, v) {
+var __metadata$26 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param$6 = (this && this.__param) || function (paramIndex, decorator) {
+var __param$7 = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var nextId$2 = 0;
@@ -5900,19 +7207,19 @@ exports.TextDirective = (function () {
     };
     return TextDirective;
 }());
-__decorate$38([
+__decorate$43([
     _angular_core.Output('newValue'),
-    __metadata$24("design:type", Object)
+    __metadata$26("design:type", Object)
 ], exports.TextDirective.prototype, "newValue", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input('text'),
-    __metadata$24("design:type", Object)
+    __metadata$26("design:type", Object)
 ], exports.TextDirective.prototype, "text", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input('rg'),
-    __metadata$24("design:type", Number)
+    __metadata$26("design:type", Number)
 ], exports.TextDirective.prototype, "rg", void 0);
-exports.TextDirective = __decorate$38([
+exports.TextDirective = __decorate$43([
     _angular_core.Directive({
         selector: '[text]',
         host: {
@@ -6001,23 +7308,23 @@ exports.ColorpickerSliderDirective = (function () {
     };
     return ColorpickerSliderDirective;
 }());
-__decorate$38([
+__decorate$43([
     _angular_core.Input('colorpicker-slider'),
-    __metadata$24("design:type", String)
+    __metadata$26("design:type", String)
 ], exports.ColorpickerSliderDirective.prototype, "slider", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input('point-x'),
-    __metadata$24("design:type", Number)
+    __metadata$26("design:type", Number)
 ], exports.ColorpickerSliderDirective.prototype, "pointX", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input('point-y'),
-    __metadata$24("design:type", Number)
+    __metadata$26("design:type", Number)
 ], exports.ColorpickerSliderDirective.prototype, "pointY", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Output('change'),
-    __metadata$24("design:type", Object)
+    __metadata$26("design:type", Object)
 ], exports.ColorpickerSliderDirective.prototype, "change", void 0);
-exports.ColorpickerSliderDirective = __decorate$38([
+exports.ColorpickerSliderDirective = __decorate$43([
     _angular_core.Directive({
         selector: '[colorpicker-slider]',
         host: {
@@ -6025,7 +7332,7 @@ exports.ColorpickerSliderDirective = __decorate$38([
             '(touchstart)': 'start($event)'
         }
     }),
-    __metadata$24("design:paramtypes", [_angular_core.ElementRef])
+    __metadata$26("design:paramtypes", [_angular_core.ElementRef])
 ], exports.ColorpickerSliderDirective);
 /**
  * Change event object emitted by Md2Colorpicker.
@@ -6459,64 +7766,64 @@ exports.Md2Colorpicker = (function () {
     };
     return Md2Colorpicker;
 }());
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", Object),
-    __metadata$24("design:paramtypes", [String])
+    __metadata$26("design:type", Object),
+    __metadata$26("design:paramtypes", [String])
 ], exports.Md2Colorpicker.prototype, "color", null);
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", Object),
-    __metadata$24("design:paramtypes", [String])
+    __metadata$26("design:type", Object),
+    __metadata$26("design:paramtypes", [String])
 ], exports.Md2Colorpicker.prototype, "placeholder", null);
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", Boolean),
-    __metadata$24("design:paramtypes", [Object])
+    __metadata$26("design:type", Boolean),
+    __metadata$26("design:paramtypes", [Object])
 ], exports.Md2Colorpicker.prototype, "required", null);
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", Object),
-    __metadata$24("design:paramtypes", [Object])
+    __metadata$26("design:type", Object),
+    __metadata$26("design:paramtypes", [Object])
 ], exports.Md2Colorpicker.prototype, "disabled", null);
-__decorate$38([
+__decorate$43([
     _angular_core.Input('format'),
-    __metadata$24("design:type", String)
+    __metadata$26("design:type", String)
 ], exports.Md2Colorpicker.prototype, "cFormat", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Output('colorpickerChange'),
-    __metadata$24("design:type", Object)
+    __metadata$26("design:type", Object)
 ], exports.Md2Colorpicker.prototype, "colorpickerChange", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Output(),
-    __metadata$24("design:type", _angular_core.EventEmitter)
+    __metadata$26("design:type", _angular_core.EventEmitter)
 ], exports.Md2Colorpicker.prototype, "change", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", Number)
+    __metadata$26("design:type", Number)
 ], exports.Md2Colorpicker.prototype, "tabindex", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", String)
+    __metadata$26("design:type", String)
 ], exports.Md2Colorpicker.prototype, "id", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Input(),
-    __metadata$24("design:type", Object),
-    __metadata$24("design:paramtypes", [String])
+    __metadata$26("design:type", Object),
+    __metadata$26("design:paramtypes", [String])
 ], exports.Md2Colorpicker.prototype, "container", null);
-__decorate$38([
+__decorate$43([
     _angular_core.Output(),
-    __metadata$24("design:type", _angular_core.EventEmitter)
+    __metadata$26("design:type", _angular_core.EventEmitter)
 ], exports.Md2Colorpicker.prototype, "onOpen", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.Output(),
-    __metadata$24("design:type", _angular_core.EventEmitter)
+    __metadata$26("design:type", _angular_core.EventEmitter)
 ], exports.Md2Colorpicker.prototype, "onClose", void 0);
-__decorate$38([
+__decorate$43([
     _angular_core.ViewChild('portal'),
-    __metadata$24("design:type", _angular_core.TemplateRef)
+    __metadata$26("design:type", _angular_core.TemplateRef)
 ], exports.Md2Colorpicker.prototype, "_templatePortal", void 0);
-exports.Md2Colorpicker = __decorate$38([
+exports.Md2Colorpicker = __decorate$43([
     _angular_core.Component({selector: 'md2-colorpicker',
         template: "<div class=\"md2-colorpicker-trigger\"><div class=\"color-picker-selector\" [class.color-error]=\"isInputValidColor && required\"><div class=\"md2-colorpicker-preview\" (click)=\"toggle()\"><div class=\"color-fill\" [style.background-color]=\"color\"></div></div><div class=\"md2-colorpicker-input\" [class.input-focused]=\"isInputFocus\"><span class=\"md2-colorpicker-placeholder\" [class.has-value]=\"color\">{{ placeholder }}</span> <input class=\"md2-colorpicker-value\" autocomplete=\"off\" value=\"color\" [tabindex]=\"tabindex\" [disabled]=\"disabled\" [(ngModel)]=\"color\" (focus)=\"isInputFocus=true\" (blur)=\"checkInputVal($event)\"> <span *ngIf=\"color && !required && !disabled\" class=\"color-clear\" (click)=\"clearColor($event)\"><svg viewBox=\"0 0 24 24\" width=\"20\" height=\"20\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/></svg></span></div></div></div><ng-template #portal><div class=\"md2-colorpicker-panel\" tabindex=\"0\" [attr.container]=\"container\"><div class=\"md2-colorpicker-content\"><div class=\"md2-colorpicker-wrapper\"><div class=\"md2-color-picker\"><div class=\"selected-color\"><div class=\"selected-color-bg\" [style.background]=\"outputColor\"><div class=\"color-input\"><div [hidden]=\"format!=2\" class=\"hsla-text\"><input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]*\" min=\"0\" max=\"360\" [rg]=\"360\" (newValue)=\"setHue($event)\" [value]=\"hslaText.h\"> <input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]*\" min=\"0\" max=\"100\" [rg]=\"100\" (newValue)=\"setSaturation($event)\" [value]=\"hslaText.s\"> <input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]*\" min=\"0\" max=\"100\" [rg]=\"100\" (newValue)=\"setLightness($event)\" [value]=\"hslaText.l\"> <input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]+([\.,][0-9]{1,2})?\" min=\"0\" max=\"1\" step=\"0.1\" [rg]=\"1\" (newValue)=\"setAlpha($event)\" [value]=\"hslaText.a\"></div><div [hidden]=\"format!=1\" class=\"rgba-text\"><input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]*\" min=\"0\" max=\"255\" [rg]=\"255\" (newValue)=\"setR($event)\" [value]=\"rgbaText.r\"> <input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]*\" min=\"0\" max=\"255\" [rg]=\"255\" (newValue)=\"setG($event)\" [value]=\"rgbaText.g\"> <input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]*\" min=\"0\" max=\"255\" [rg]=\"255\" (newValue)=\"setB($event)\" [value]=\"rgbaText.b\"> <input [text] type=\"number\" [style.color]=\"fontColor\" pattern=\"[0-9]+([\.,][0-9]{1,2})?\" min=\"0\" max=\"1\" step=\"0.1\" [rg]=\"1\" (newValue)=\"setAlpha($event)\" [value]=\"rgbaText.a\"></div><div [hidden]=\"format!=0\" class=\"hex-text\"><input [text] (newValue)=\"setColorFromString($event)\" [style.color]=\"fontColor\" [value]=\"hexText\"></div></div><div class=\"color-bar\" [class.dark]=\"_isDark\"><div [style.color]=\"fontColor\" class=\"clearfix\"><div class=\"type-policy\" [class.active]=\"format==0\" (click)=\"formatPolicy(0)\">HEX</div><div class=\"type-policy\" [class.active]=\"format==1\" (click)=\"formatPolicy(1)\">RGBA</div><div class=\"type-policy\" [class.active]=\"format==2\" (click)=\"formatPolicy(2)\">HSLA</div></div></div></div></div><div class=\"input-color-content\"><div [colorpicker-slider] [style.background-color]=\"_hueSliderColor\" [point-x]=\"1\" [point-y]=\"1\" (change)=\"setSaturationAndBrightness($event)\" class=\"saturation-lightness\"><div [style.left.px]=\"slider.s\" [style.top.px]=\"slider.v\" class=\"cursor\"></div></div><div [colorpicker-slider] [point-x]=\"1\" (change)=\"setHue($event)\" class=\"hue\"><div [style.left.px]=\"slider.h\" class=\"color-picker-marker\"></div></div><div [colorpicker-slider] [point-x]=\"1\" (change)=\"setAlpha($event)\" class=\"alpha\"><div class=\"alpha-main\" [ngStyle]=\"setGradient\"><div [style.left.px]=\"slider.a\" class=\"color-picker-marker\"></div></div></div></div><div class=\"md2-color-picker-actions\"><div class=\"md2-button\" (click)=\"cancelColor()\">Cancel</div><div class=\"md2-button\" (click)=\"clickOk()\">Ok</div></div></div></div></div></div></ng-template>",
         styles: [".md2-colorpicker-wrapper{border-radius:3px;background-color:#fff;z-index:10;box-shadow:0 2px 6px rgba(0,0,0,.4);overflow:hidden}.md2-colorpicker-panel{outline:0;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12)}.md2-colorpicker-panel[container=dialog]{box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12)}.md2-colorpicker-disabled{pointer-events:none;cursor:default}.md2-colorpicker-disabled .color-picker-selector .md2-colorpicker-value{color:rgba(0,0,0,.38);border-color:transparent;background-image:linear-gradient(to right,rgba(0,0,0,.38) 0,rgba(0,0,0,.38) 33%,transparent 0);background-position:bottom -1px left 0;background-size:4px 1px;background-repeat:repeat-x}.md2-colorpicker-input{color:rgba(0,0,0,.38);border-bottom:1px solid rgba(0,0,0,.12);display:flex;justify-content:space-between;align-items:center;height:30px;min-width:180px;line-height:22px;position:relative;box-sizing:border-box}[aria-disabled=true] .md2-colorpicker-input{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-color:transparent;background-position:0 bottom;cursor:default}md2-colorpicker:focus:not(.md2-colorpicker-disabled) .md2-colorpicker-input{color:#106cc8;border-color:#106cc8}md2-colorpicker.ng-invalid.ng-touched:not(.md2-colorpicker-disabled) .md2-colorpicker-input{color:#f44336;border-color:#f44336}.input-focused{color:#106cc8;border-color:#106cc8}.inline-control{width:150px;margin-right:16px;padding:16px 0}.md2-colorpicker-placeholder{position:absolute;right:18px;bottom:100%;left:0;padding:0 2px;transform:translate3d(0,26px,0) scale(1);transform-origin:left top;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;transition:all 150ms cubic-bezier(.25,.8,.25,1)}[aria-required=true] .md2-colorpicker-placeholder::after{content:'*'}.md2-colorpicker-input.input-focused .md2-colorpicker-placeholder{color:#106cc8}.md2-colorpicker-input.input-focused .md2-colorpicker-placeholder,md2-colorpicker .md2-colorpicker-placeholder.has-value{transform:translate3d(0,6px,0) scale(.75)}.color-error .md2-colorpicker-input,.color-error .md2-colorpicker-placeholder{color:#f44336!important;border-color:#f44336}.color-error .color-fill{background-color:transparent!important}.color-picker-selector{display:block;padding:18px 0 4px 46px;white-space:nowrap}.color-picker-selector .md2-colorpicker-preview{position:absolute;top:19px;left:6px;content:'';width:24px;height:24px;overflow:hidden;background-color:#fff;background:linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd),linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd);background-size:8px 8px;background-position:0 0,4px 4px;border:2px solid #fafafa;display:block;fill:#5a5a5a;cursor:pointer;border-radius:50%;vertical-align:middle;box-shadow:0 1px 1px 0 rgba(0,0,0,.2),0 1px 1px 1px rgba(0,0,0,.14),0 1px 1px 1px rgba(0,0,0,.12)}.color-picker-selector .md2-colorpicker-preview .color-fill{width:100%;height:100%}.color-picker-selector .md2-colorpicker-value{font-size:15px;background:0 0;border:0;outline:0;position:relative;display:block;min-width:160px;height:30px;padding:2px 2px 1px;margin:0;line-height:26px;color:rgba(0,0,0,.87);vertical-align:middle;box-sizing:border-box}md2-colorpicker{position:relative;display:block;outline:0}.md2-color-picker{position:relative;display:block;width:266px;outline:0}.md2-color-picker *{box-sizing:border-box}.md2-color-picker .input-color-content{position:relative;padding:8px}.md2-color-picker i{cursor:default;position:relative}.md2-color-picker input{font-size:16px;height:50px;outline:0}.md2-color-picker div.cursor-sv{cursor:default;position:relative;border-radius:50%;width:15px;height:15px;border:#ddd solid 1px}.md2-color-picker div.cursor{cursor:crosshair;position:relative;border-radius:50%;width:13px;height:13px;box-shadow:0 0 2px 0 rgba(0,0,0,.5),inset 0 0 2px 0 rgba(0,0,0,.5);border:2px solid #fff}.md2-color-picker div.color-picker-marker{cursor:crosshair;position:relative;border:2px solid #fff;box-shadow:0 0 2px 0 rgba(0,0,0,.5);height:100%;width:5px;border-bottom:0;border-top:0}.md2-color-picker .saturation-lightness{width:100%;height:130px;border-radius:2px;overflow:hidden;background-image:linear-gradient(to top,#000,transparent),linear-gradient(to right,#fff,rgba(255,255,255,0))}.md2-color-picker .saturation-lightness:hover{cursor:crosshair}.md2-color-picker .hue{position:relative;width:100%;height:30px;margin:8px 0;border-radius:2px;background:linear-gradient(to right,red,#ff0,#0f0,#0ff,#00f,#f0f,red)}.md2-color-picker .alpha{position:relative;width:100%;height:30px;border-radius:2px;background:linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd),linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd);background-size:8px 8px;background-position:0 0,4px 4px}.md2-color-picker .alpha .alpha-main{position:absolute;height:100%;opacity:1;background-image:linear-gradient(to left,transparent,transparent),linear-gradient(to right,#fff,rgba(255,255,255,0));width:100%}.md2-color-picker .selected-color{position:relative;width:100%;height:75px;background-color:#fff;background:linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd),linear-gradient(45deg,#ddd 25%,transparent 0,transparent 75%,#ddd 0,#ddd);background-size:8px 8px;background-position:0 0,4px 4px}.md2-color-picker .selected-color .selected-color-bg{position:absolute;height:100%;opacity:1;width:100%}.md2-color-picker .selected-color .color-bar{position:absolute;width:100%;bottom:0}.md2-color-picker .selected-color .color-input{position:relative}.color-clear{color:rgba(0,0,0,.4);cursor:pointer}.color-clear svg{vertical-align:bottom;fill:#686868}.clearfix::after,.clearfix::before{content:' ';display:table}.clearfix::after{clear:both}.hex-text{width:100%}.hex-text input{width:100%;border:0;padding:4px;text-align:center;background:0 0}.hex-text div{text-align:center;float:left;clear:left;width:160px;margin-top:4px}.hsla-text,.rgba-text{text-align:center}.hsla-text input,.rgba-text input{width:50px;border:0;padding:4px 0;background:0 0;text-align:center}.hsla-text div,.rgba-text div{text-align:center;display:block}.hsla-text label,.rgba-text label{text-align:center;display:inline-block;font-size:15px}.md2-color-picker-actions{text-align:right}.md2-color-picker-actions .md2-button{display:inline-block;min-width:64px;margin:4px 8px 8px 0;padding:0 12px;font-size:14px;color:#106cc8;line-height:36px;text-align:center;text-transform:uppercase;border-radius:2px;cursor:pointer;box-sizing:border-box;transition:all 450ms cubic-bezier(.23,1,.32,1)}.md2-color-picker-actions .md2-button:hover{background:#ebebeb}.hsla-text div:nth-child(5),.rgba-text div:nth-child(5){clear:left}.type-policy{width:33.333333%;text-align:center;font-size:14px;display:inline-block;float:left;padding:4px 8px 3px;border-bottom:2px solid transparent;cursor:pointer;background:rgba(255,255,255,.25)}.dark .type-policy{background:rgba(0,0,0,.25)}.type-policy.active{border-color:rgba(255,255,255,.5);background:0 0}.dark .type-policy.active{border-color:rgba(0,0,0,.5)}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48}.cdk-overlay-dark-backdrop{background:rgba(0,0,0,.6)} /*# sourceMappingURL=colorpicker.css.map */ "],
@@ -6529,8 +7836,8 @@ exports.Md2Colorpicker = __decorate$38([
         },
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __param$6(5, _angular_core.Self()), __param$6(5, _angular_core.Optional()),
-    __metadata$24("design:paramtypes", [_angular_core.ElementRef, exports.Overlay,
+    __param$7(5, _angular_core.Self()), __param$7(5, _angular_core.Optional()),
+    __metadata$26("design:paramtypes", [_angular_core.ElementRef, exports.Overlay,
         _angular_core.ViewContainerRef, _angular_core.Renderer,
         ColorUtil, _angular_forms.NgControl])
 ], exports.Md2Colorpicker);
@@ -6593,7 +7900,7 @@ exports.Md2ColorpickerModule = Md2ColorpickerModule_1 = (function () {
     };
     return Md2ColorpickerModule;
 }());
-exports.Md2ColorpickerModule = Md2ColorpickerModule_1 = __decorate$38([
+exports.Md2ColorpickerModule = Md2ColorpickerModule_1 = __decorate$43([
     _angular_core.NgModule({
         declarations: MD2_COLORPICKER_DIRECTIVES,
         imports: [_angular_common.CommonModule, _angular_forms.FormsModule, exports.OverlayModule, exports.PortalModule],
@@ -6605,13 +7912,13 @@ var Md2ColorpickerModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$43 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$48 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$27 = (this && this.__metadata) || function (k, v) {
+var __metadata$29 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 /**
@@ -6750,20 +8057,20 @@ exports.Md2Option = (function () {
     
     return Md2Option;
 }());
-__decorate$43([
+__decorate$48([
     _angular_core.Input(),
-    __metadata$27("design:type", Object)
+    __metadata$29("design:type", Object)
 ], exports.Md2Option.prototype, "value", void 0);
-__decorate$43([
+__decorate$48([
     _angular_core.Input(),
-    __metadata$27("design:type", Object),
-    __metadata$27("design:paramtypes", [Object])
+    __metadata$29("design:type", Object),
+    __metadata$29("design:paramtypes", [Object])
 ], exports.Md2Option.prototype, "disabled", null);
-__decorate$43([
+__decorate$48([
     _angular_core.Output(),
-    __metadata$27("design:type", Object)
+    __metadata$29("design:type", Object)
 ], exports.Md2Option.prototype, "onSelectionChange", void 0);
-exports.Md2Option = __decorate$43([
+exports.Md2Option = __decorate$48([
     _angular_core.Component({selector: 'md2-option',
         host: {
             'role': 'option',
@@ -6782,7 +8089,7 @@ exports.Md2Option = __decorate$43([
         template: '<ng-content></ng-content>',
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __metadata$27("design:paramtypes", [_angular_core.ElementRef,
+    __metadata$29("design:paramtypes", [_angular_core.ElementRef,
         _angular_core.Renderer])
 ], exports.Md2Option);
 exports.Md2OptionModule = Md2OptionModule_1 = (function () {
@@ -6796,7 +8103,7 @@ exports.Md2OptionModule = Md2OptionModule_1 = (function () {
     };
     return Md2OptionModule;
 }());
-exports.Md2OptionModule = Md2OptionModule_1 = __decorate$43([
+exports.Md2OptionModule = Md2OptionModule_1 = __decorate$48([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, exports.MdSelectionModule],
         exports: [exports.Md2Option],
@@ -7046,7 +8353,7 @@ var transformPanel = _angular_animations.trigger('transformPanel', [
  * select's options. It is time delayed to occur 100ms after the overlay
  * panel has transformed in.
  */
-var fadeInContent = _angular_animations.trigger('fadeInContent', [
+var fadeInContent$1 = _angular_animations.trigger('fadeInContent', [
     _angular_animations.state('showing', _angular_animations.style({ opacity: 1 })),
     _angular_animations.transition('void => showing', [
         _angular_animations.style({ opacity: 0 }),
@@ -7083,16 +8390,16 @@ var MdSelectNonArrayValueError = (function (_super) {
     return MdSelectNonArrayValueError;
 }(MdError));
 
-var __decorate$42 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$47 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$26 = (this && this.__metadata) || function (k, v) {
+var __metadata$28 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param$8 = (this && this.__param) || function (paramIndex, decorator) {
+var __param$9 = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 /**
@@ -7835,69 +9142,69 @@ exports.Md2Select = (function () {
     };
     return Md2Select;
 }());
-__decorate$42([
+__decorate$47([
     _angular_core.ViewChild('trigger'),
-    __metadata$26("design:type", _angular_core.ElementRef)
+    __metadata$28("design:type", _angular_core.ElementRef)
 ], exports.Md2Select.prototype, "trigger", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.ViewChild(exports.ConnectedOverlayDirective),
-    __metadata$26("design:type", exports.ConnectedOverlayDirective)
+    __metadata$28("design:type", exports.ConnectedOverlayDirective)
 ], exports.Md2Select.prototype, "overlayDir", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.ContentChildren(exports.Md2Option),
-    __metadata$26("design:type", _angular_core.QueryList)
+    __metadata$28("design:type", _angular_core.QueryList)
 ], exports.Md2Select.prototype, "options", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.Input(),
-    __metadata$26("design:type", Object),
-    __metadata$26("design:paramtypes", [String])
+    __metadata$28("design:type", Object),
+    __metadata$28("design:paramtypes", [String])
 ], exports.Md2Select.prototype, "placeholder", null);
-__decorate$42([
+__decorate$47([
     _angular_core.Input(),
-    __metadata$26("design:type", Object),
-    __metadata$26("design:paramtypes", [Object])
+    __metadata$28("design:type", Object),
+    __metadata$28("design:paramtypes", [Object])
 ], exports.Md2Select.prototype, "disabled", null);
-__decorate$42([
+__decorate$47([
     _angular_core.Input(),
-    __metadata$26("design:type", Object),
-    __metadata$26("design:paramtypes", [Object])
+    __metadata$28("design:type", Object),
+    __metadata$28("design:paramtypes", [Object])
 ], exports.Md2Select.prototype, "required", null);
-__decorate$42([
+__decorate$47([
     _angular_core.Input(),
-    __metadata$26("design:type", Boolean),
-    __metadata$26("design:paramtypes", [Boolean])
+    __metadata$28("design:type", Boolean),
+    __metadata$28("design:paramtypes", [Boolean])
 ], exports.Md2Select.prototype, "multiple", null);
-__decorate$42([
+__decorate$47([
     _angular_core.Input(),
-    __metadata$26("design:type", String),
-    __metadata$26("design:paramtypes", [String])
+    __metadata$28("design:type", String),
+    __metadata$28("design:paramtypes", [String])
 ], exports.Md2Select.prototype, "floatPlaceholder", null);
-__decorate$42([
+__decorate$47([
     _angular_core.Input(),
-    __metadata$26("design:type", Number),
-    __metadata$26("design:paramtypes", [Number])
+    __metadata$28("design:type", Number),
+    __metadata$28("design:paramtypes", [Number])
 ], exports.Md2Select.prototype, "tabIndex", null);
-__decorate$42([
+__decorate$47([
     _angular_core.Input('aria-label'),
-    __metadata$26("design:type", String)
+    __metadata$28("design:type", String)
 ], exports.Md2Select.prototype, "ariaLabel", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.Input('aria-labelledby'),
-    __metadata$26("design:type", String)
+    __metadata$28("design:type", String)
 ], exports.Md2Select.prototype, "ariaLabelledby", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.Output(),
-    __metadata$26("design:type", _angular_core.EventEmitter)
+    __metadata$28("design:type", _angular_core.EventEmitter)
 ], exports.Md2Select.prototype, "onOpen", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.Output(),
-    __metadata$26("design:type", _angular_core.EventEmitter)
+    __metadata$28("design:type", _angular_core.EventEmitter)
 ], exports.Md2Select.prototype, "onClose", void 0);
-__decorate$42([
+__decorate$47([
     _angular_core.Output(),
-    __metadata$26("design:type", _angular_core.EventEmitter)
+    __metadata$28("design:type", _angular_core.EventEmitter)
 ], exports.Md2Select.prototype, "change", void 0);
-exports.Md2Select = __decorate$42([
+exports.Md2Select = __decorate$47([
     _angular_core.Component({selector: 'md2-select',
         template: "<div class=\"md2-select-trigger\" cdk-overlay-origin (click)=\"toggle()\" #origin=\"cdkOverlayOrigin\" #trigger><span class=\"md2-select-placeholder\" [class.md2-floating-placeholder]=\"_selectionModel.hasValue()\" [@transformPlaceholder]=\"_getPlaceholderAnimationState()\" [style.visibility]=\"_getPlaceholderVisibility()\" [style.width.px]=\"_selectedValueWidth\">{{ placeholder }}</span> <span class=\"md2-select-value\" *ngIf=\"_selectionModel.hasValue()\"><span class=\"md2-select-value-text\">{{ triggerValue }}</span> </span><span class=\"md2-select-arrow\"></span> <span class=\"md2-select-underline\"></span></div><ng-template cdk-connected-overlay [origin]=\"origin\" [open]=\"panelOpen\" hasBackdrop (backdropClick)=\"close()\" backdropClass=\"cdk-overlay-transparent-backdrop\" [positions]=\"_positions\" [minWidth]=\"_triggerWidth\" [offsetY]=\"_offsetY\" [offsetX]=\"_offsetX\" (attach)=\"_setScrollTop()\"><div class=\"md2-select-panel\" [@transformPanel]=\"'showing'\" (@transformPanel.done)=\"_onPanelDone()\" (keydown)=\"_keyManager.onKeydown($event)\" [style.transformOrigin]=\"_transformOrigin\" [class.md2-select-panel-done-animating]=\"_panelDoneAnimating\"><div class=\"md2-select-content\" [@fadeInContent]=\"'showing'\" (@fadeInContent.done)=\"_onFadeInDone()\"><ng-content select=\"md2-select-header\"></ng-content><ng-content></ng-content></div></div></ng-template>",
         styles: [".md2-select{display:inline-block;outline:0}.md2-select-trigger{color:rgba(0,0,0,.38);display:flex;align-items:center;height:30px;min-width:112px;cursor:pointer;position:relative;box-sizing:border-box;font-size:16px}[aria-disabled=true] .md2-select-trigger{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:default}.md2-select:focus:not(.md2-select-disabled) .md2-select-trigger{color:#106cc8}.md2-select.ng-invalid.ng-touched:not(.md2-select-disabled) .md2-select-trigger{color:#f44336}.md2-select-underline{position:absolute;bottom:0;left:0;right:0;height:1px;background-color:rgba(0,0,0,.12)}[aria-disabled=true] .md2-select-underline{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;background-color:transparent;background-position:0 bottom}.md2-select:focus:not(.md2-select-disabled) .md2-select-underline{background-color:#106cc8}.md2-select.ng-invalid.ng-touched:not(.md2-select-disabled) .md2-select-underline{background-color:#f44336}.md2-select-placeholder{position:relative;padding:0 2px;transform-origin:left top;flex-grow:1}.md2-select-placeholder.md2-floating-placeholder{top:-22px;left:-2px;text-align:left;transform:scale(.75)}[dir=rtl] .md2-select-placeholder{transform-origin:right top}[dir=rtl] .md2-select-placeholder.md2-floating-placeholder{left:2px;text-align:right}[aria-required=true] .md2-select-placeholder::after{content:'*'}.md2-select-value{position:absolute;max-width:calc(100% - 18px);flex-grow:1;top:0;left:0;bottom:0;display:flex;align-items:center;color:rgba(0,0,0,.87)}[dir=rtl] .md2-select-value{left:auto;right:0}.md2-select-disabled .md2-select-value{color:rgba(0,0,0,.38)}.md2-select-value-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:30px}.md2-select-arrow{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid;margin:0 4px}.md2-select-panel{box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);min-width:112px;max-width:280px;overflow:auto;-webkit-overflow-scrolling:touch;padding-top:0;padding-bottom:0;max-height:256px}@media screen and (-ms-high-contrast:active){.md2-select-panel{outline:solid 1px}}.md2-select-content,.md2-select-panel-done-animating{background:#fff}.md2-option{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;line-height:48px;height:48px;padding:0 16px;font-size:16px;font-family:Roboto,\"Helvetica Neue\",sans-serif;text-align:left;text-decoration:none;position:relative;cursor:pointer;outline:0}.md2-option[disabled]{cursor:default}[dir=rtl] .md2-option{text-align:right}.md2-option .mat-icon{margin-right:16px}[dir=rtl] .md2-option .mat-icon{margin-left:16px}.md2-option[aria-disabled=true]{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;cursor:default}.md2-option:focus:not(.md2-option-disabled),.md2-option:hover:not(.md2-option-disabled){background:rgba(0,0,0,.04)}.md2-option.md2-selected{color:#106cc8}.md2-option.md2-selected:not(.md2-option-multiple){background:rgba(0,0,0,.04)}.md2-option.md2-active{background:rgba(0,0,0,.04);color:#106cc8}.md2-option.md2-option-disabled{color:rgba(0,0,0,.38)}.md2-option.md2-option-multiple{padding-left:40px}.md2-option.md2-option-multiple::after{content:'';position:absolute;top:50%;left:12px;display:block;width:16px;height:16px;margin-top:-8px;border:2px solid;border-radius:2px;box-sizing:border-box;transition:240ms}.md2-option.md2-option-multiple.md2-selected::after{transform:rotate(-45deg);height:8px;border-width:0 0 2px 2px}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-transparent-backdrop{background:0 0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48} /*# sourceMappingURL=select.css.map */ "],
@@ -7919,13 +9226,13 @@ exports.Md2Select = __decorate$42([
         animations: [
             transformPlaceholder,
             transformPanel,
-            fadeInContent
+            fadeInContent$1
         ],
         exportAs: 'md2Select',
     }),
-    __param$8(4, _angular_core.Optional()), __param$8(5, _angular_core.Self()), __param$8(5, _angular_core.Optional()),
-    __param$8(6, _angular_core.Attribute('tabindex')),
-    __metadata$26("design:paramtypes", [_angular_core.ElementRef, _angular_core.Renderer,
+    __param$9(4, _angular_core.Optional()), __param$9(5, _angular_core.Self()), __param$9(5, _angular_core.Optional()),
+    __param$9(6, _angular_core.Attribute('tabindex')),
+    __metadata$28("design:paramtypes", [_angular_core.ElementRef, _angular_core.Renderer,
         ViewportRuler, _angular_core.ChangeDetectorRef,
         exports.Dir, _angular_forms.NgControl, String])
 ], exports.Md2Select);
@@ -7934,7 +9241,7 @@ function clampValue(min, n, max) {
     return Math.min(Math.max(min, n), max);
 }
 
-var __decorate$44 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$49 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -7948,7 +9255,7 @@ exports.Md2SelectHeader = (function () {
     }
     return Md2SelectHeader;
 }());
-exports.Md2SelectHeader = __decorate$44([
+exports.Md2SelectHeader = __decorate$49([
     _angular_core.Directive({
         selector: 'md2-select-header',
         host: {
@@ -7957,7 +9264,7 @@ exports.Md2SelectHeader = __decorate$44([
     })
 ], exports.Md2SelectHeader);
 
-var __decorate$41 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$46 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -7975,7 +9282,7 @@ exports.Md2SelectModule = Md2SelectModule_1 = (function () {
     };
     return Md2SelectModule;
 }());
-exports.Md2SelectModule = Md2SelectModule_1 = __decorate$41([
+exports.Md2SelectModule = Md2SelectModule_1 = __decorate$46([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, exports.OverlayModule, exports.Md2OptionModule, exports.CompatibilityModule],
         exports: [exports.Md2Select, exports.Md2SelectHeader, exports.Md2OptionModule, exports.CompatibilityModule],
@@ -7984,16 +9291,16 @@ exports.Md2SelectModule = Md2SelectModule_1 = __decorate$41([
 ], exports.Md2SelectModule);
 var Md2SelectModule_1;
 
-var __decorate$40 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$45 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$25 = (this && this.__metadata) || function (k, v) {
+var __metadata$27 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param$7 = (this && this.__param) || function (paramIndex, decorator) {
+var __param$8 = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var Md2PaginationChange = (function () {
@@ -8178,49 +9485,49 @@ exports.Md2DataTable = (function () {
     };
     return Md2DataTable;
 }());
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", Object),
-    __metadata$25("design:paramtypes", [Array])
+    __metadata$27("design:type", Object),
+    __metadata$27("design:paramtypes", [Array])
 ], exports.Md2DataTable.prototype, "md2Data", null);
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", Object),
-    __metadata$25("design:paramtypes", [Number])
+    __metadata$27("design:type", Object),
+    __metadata$27("design:paramtypes", [Number])
 ], exports.Md2DataTable.prototype, "activePage", null);
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", Object),
-    __metadata$25("design:paramtypes", [Number])
+    __metadata$27("design:type", Object),
+    __metadata$27("design:paramtypes", [Number])
 ], exports.Md2DataTable.prototype, "rowsPerPage", null);
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", Object),
-    __metadata$25("design:paramtypes", [Object])
+    __metadata$27("design:type", Object),
+    __metadata$27("design:paramtypes", [Object])
 ], exports.Md2DataTable.prototype, "sortBy", null);
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", Object),
-    __metadata$25("design:paramtypes", [String])
+    __metadata$27("design:type", Object),
+    __metadata$27("design:paramtypes", [String])
 ], exports.Md2DataTable.prototype, "sortOrder", null);
-__decorate$40([
+__decorate$45([
     _angular_core.Output(),
-    __metadata$25("design:type", Object)
+    __metadata$27("design:type", Object)
 ], exports.Md2DataTable.prototype, "activePageChange", void 0);
-__decorate$40([
+__decorate$45([
     _angular_core.Output(),
-    __metadata$25("design:type", Object)
+    __metadata$27("design:type", Object)
 ], exports.Md2DataTable.prototype, "sortByChange", void 0);
-__decorate$40([
+__decorate$45([
     _angular_core.Output(),
-    __metadata$25("design:type", Object)
+    __metadata$27("design:type", Object)
 ], exports.Md2DataTable.prototype, "sortOrderChange", void 0);
-exports.Md2DataTable = __decorate$40([
+exports.Md2DataTable = __decorate$45([
     _angular_core.Directive({
         selector: 'table[md2Data]',
         exportAs: 'md2DataTable'
     }),
-    __metadata$25("design:paramtypes", [_angular_core.IterableDiffers])
+    __metadata$27("design:paramtypes", [_angular_core.IterableDiffers])
 ], exports.Md2DataTable);
 exports.Md2DataTableSortBy = (function () {
     function Md2DataTableSortBy(_md2Table) {
@@ -8245,11 +9552,11 @@ exports.Md2DataTableSortBy = (function () {
     };
     return Md2DataTableSortBy;
 }());
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", String)
+    __metadata$27("design:type", String)
 ], exports.Md2DataTableSortBy.prototype, "md2SortBy", void 0);
-exports.Md2DataTableSortBy = __decorate$40([
+exports.Md2DataTableSortBy = __decorate$45([
     _angular_core.Component({
         selector: '[md2SortBy]',
         template: "<ng-content></ng-content>&nbsp; <svg *ngIf=\"!_isDesc\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\"><path d=\"M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z\"/></svg> <svg *ngIf=\"_isDesc\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\"><path d=\"M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z\"/></svg>",
@@ -8260,7 +9567,7 @@ exports.Md2DataTableSortBy = __decorate$40([
         },
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __metadata$25("design:paramtypes", [exports.Md2DataTable])
+    __metadata$27("design:paramtypes", [exports.Md2DataTable])
 ], exports.Md2DataTableSortBy);
 exports.Md2Pagination = (function () {
     function Md2Pagination(_dataTable) {
@@ -8289,15 +9596,15 @@ exports.Md2Pagination = (function () {
     };
     return Md2Pagination;
 }());
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", Object)
+    __metadata$27("design:type", Object)
 ], exports.Md2Pagination.prototype, "rowsPerPageSet", void 0);
-__decorate$40([
+__decorate$45([
     _angular_core.Input(),
-    __metadata$25("design:type", exports.Md2DataTable)
+    __metadata$27("design:type", exports.Md2DataTable)
 ], exports.Md2Pagination.prototype, "md2Table", void 0);
-exports.Md2Pagination = __decorate$40([
+exports.Md2Pagination = __decorate$45([
     _angular_core.Component({
         selector: 'md2-pagination',
         template: "<ul class=\"md2-pagination\" *ngIf=\"_dataLength > _rowsPerPage\"><li [class.disabled]=\"_activePage <= 1\" (click)=\"_setPage(_activePage - 1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z\"/></svg></li><li *ngIf=\"_activePage > 4 && _activePage + 1 > _lastPage\" (click)=\"_setPage(_activePage - 4)\">{{_activePage-4}}</li><li *ngIf=\"_activePage > 3 && _activePage + 2 > _lastPage\" (click)=\"_setPage(_activePage - 3)\">{{_activePage-3}}</li><li *ngIf=\"_activePage > 2\" (click)=\"_setPage(_activePage - 2)\">{{_activePage-2}}</li><li *ngIf=\"_activePage > 1\" (click)=\"_setPage(_activePage - 1)\">{{_activePage-1}}</li><li class=\"active\">{{_activePage}}</li><li *ngIf=\"_activePage + 1 <= _lastPage\" (click)=\"_setPage(_activePage + 1)\">{{_activePage+1}}</li><li *ngIf=\"_activePage + 2 <= _lastPage\" (click)=\"_setPage(_activePage + 2)\">{{_activePage+2}}</li><li *ngIf=\"_activePage + 3 <= _lastPage && _activePage < 3\" (click)=\"_setPage(_activePage + 3)\">{{_activePage+3}}</li><li *ngIf=\"_activePage + 4 <= _lastPage && _activePage < 2\" (click)=\"_setPage(_activePage + 4)\">{{_activePage+4}}</li><li [class.disabled]=\"_activePage >= _lastPage\" (click)=\"_setPage(_activePage + 1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z\"/></svg></li></ul><div class=\"md2-rows-select\" *ngIf=\"rowsPerPageSet.length && _dataLength > 0\">Rows per page:<md2-select [(ngModel)]=\"_rowsPerPage\" (change)=\"_setRows($event)\"><md2-option *ngFor=\"let row of rowsPerPageSet\" [value]=\"row\">{{row}}</md2-option></md2-select></div>",
@@ -8305,8 +9612,8 @@ exports.Md2Pagination = __decorate$40([
         exportAs: 'md2Pagination',
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __param$7(0, _angular_core.Optional()),
-    __metadata$25("design:paramtypes", [exports.Md2DataTable])
+    __param$8(0, _angular_core.Optional()),
+    __metadata$27("design:paramtypes", [exports.Md2DataTable])
 ], exports.Md2Pagination);
 var MD2_DATA_TABLE_DIRECTIVES = [
     exports.Md2DataTable,
@@ -8323,7 +9630,7 @@ exports.Md2DataTableModule = Md2DataTableModule_1 = (function () {
     };
     return Md2DataTableModule;
 }());
-exports.Md2DataTableModule = Md2DataTableModule_1 = __decorate$40([
+exports.Md2DataTableModule = Md2DataTableModule_1 = __decorate$45([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, _angular_forms.FormsModule, exports.Md2SelectModule.forRoot()],
         exports: MD2_DATA_TABLE_DIRECTIVES,
@@ -8334,603 +9641,20 @@ var Md2DataTableModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$47 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$51 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-/** Whether the browser supports the Intl API. */
-var SUPPORTS_INTL_API = !!Intl;
-/** Creates an array and fills it with values. */
-function range(length, valueFunction) {
-    return Array.apply(null, Array(length)).map(function (v, i) { return valueFunction(i); });
-}
-/** Date locale info. TODO(mmalerba): Integrate with i18n solution once we know what we're doing. */
-exports.DateLocale = (function () {
-    function DateLocale() {
-        var _this = this;
-        this.dates = [null].concat(SUPPORTS_INTL_API ? this._createDatesArray('numeric') : range(31, function (i) { return String(i + 1); }));
-        this.getCalendarMonthHeaderLabel = this._createFormatFunction({ month: 'long', year: 'numeric' }) ||
-            (function (date) { return _this.shortMonths[date.getMonth()] + ' ' + date.getFullYear(); });
-        this.getCalendarYearHeaderLabel = this._createFormatFunction({ year: 'numeric' }) ||
-            (function (date) { return String(date.getFullYear()); });
-        this.firstDayOfWeek = 0;
-        this.months = [
-            { full: 'January', short: 'Jan' },
-            { full: 'February', short: 'Feb' },
-            { full: 'March', short: 'Mar' },
-            { full: 'April', short: 'Apr' },
-            { full: 'May', short: 'May' },
-            { full: 'June', short: 'Jun' },
-            { full: 'July', short: 'Jul' },
-            { full: 'August', short: 'Aug' },
-            { full: 'September', short: 'Sep' },
-            { full: 'October', short: 'Oct' },
-            { full: 'November', short: 'Nov' },
-            { full: 'December', short: 'Dec' },
-        ];
-        this.fullMonths = SUPPORTS_INTL_API ? this._createMonthsArray('long') :
-            [
-                'January',
-                'February',
-                'March',
-                'April',
-                'May',
-                'June',
-                'July',
-                'August',
-                'September',
-                'October',
-                'November',
-                'December'
-            ];
-        this.shortMonths = SUPPORTS_INTL_API ? this._createMonthsArray('short') :
-            ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        this.narrowMonths = SUPPORTS_INTL_API ? this._createMonthsArray('narrow') :
-            ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
-        this.days = [
-            { full: 'Sunday', short: 'Sun', xshort: 'S' },
-            { full: 'Monday', short: 'Mon', xshort: 'M' },
-            { full: 'Tuesday', short: 'Tue', xshort: 'T' },
-            { full: 'Wednesday', short: 'Wed', xshort: 'W' },
-            { full: 'Thursday', short: 'Thu', xshort: 'T' },
-            { full: 'Friday', short: 'Fri', xshort: 'F' },
-            { full: 'Saturday', short: 'Sat', xshort: 'S' },
-        ];
-        this.fullDays = SUPPORTS_INTL_API ? this._createDaysArray('long') :
-            ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        this.shortDays = SUPPORTS_INTL_API ? this._createDaysArray('short') :
-            ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-        this.narrowDays = SUPPORTS_INTL_API ? this._createDaysArray('narrow') :
-            ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    }
-    DateLocale.prototype.parseDate = function (value) {
-        if (value instanceof Date) {
-            return value;
-        }
-        var timestamp = typeof value == 'number' ? value : Date.parse(value);
-        return isNaN(timestamp) ? null : new Date(timestamp);
-    };
-    DateLocale.prototype._createDatesArray = function (format) {
-        var dtf = new Intl.DateTimeFormat(undefined, { day: format });
-        return range(31, function (i) { return dtf.format(new Date(2017, 0, i + 1)); });
-    };
-    DateLocale.prototype._createFormatFunction = function (options) {
-        if (SUPPORTS_INTL_API) {
-            var dtf_1 = new Intl.DateTimeFormat(undefined, options);
-            return function (date) { return dtf_1.format(date); };
-        }
-        return null;
-    };
-    DateLocale.prototype.getDays = function () {
-        return this.days.slice(this.firstDayOfWeek, this.days.length)
-            .concat(this.days.slice(0, this.firstDayOfWeek));
-    };
-    DateLocale.prototype.getDayLabel = function (d) { return "" + d; };
-    DateLocale.prototype.getDateLabel = function (d) {
-        return this.days[d.getDay()].short + ", " + this.months[d.getMonth()].short + " " + d.getDate();
-    };
-    DateLocale.prototype.getMonthLabel = function (m, y) { return this.months[m].full + " " + y; };
-    DateLocale.prototype.getYearLabel = function (y) { return "" + y; };
-    DateLocale.prototype._createMonthsArray = function (format) {
-        var dtf = new Intl.DateTimeFormat(undefined, { month: format });
-        return range(12, function (i) { return dtf.format(new Date(2017, i, 1)); });
-    };
-    DateLocale.prototype._createDaysArray = function (format) {
-        var dtf = new Intl.DateTimeFormat(undefined, { weekday: format });
-        return range(7, function (i) { return dtf.format(new Date(2017, 0, i + 1)); });
-    };
-    return DateLocale;
-}());
-exports.DateLocale = __decorate$47([
-    _angular_core.Injectable()
-], exports.DateLocale);
-
-var DateUtil = (function () {
-    function DateUtil() {
-        this._locale = new exports.DateLocale();
-        this.parseDateMap = {
-            'y': 0,
-            'Y': [0, -2000],
-            'M': [1, 1],
-            'n': [1, this._locale.shortMonths],
-            'N': [1, this._locale.fullMonths],
-            'd': 2,
-            'm': 4,
-            'H': 3,
-            'h': 3,
-            'K': [3, 1],
-            'k': [3, 1],
-            's': 5,
-            'S': 6,
-            'a': [3, ['am', 'pm']]
-        };
-    }
-    DateUtil.prototype.today = function () {
-        return new Date();
-    };
-    DateUtil.prototype.replace = function (s, regexp, sub) {
-        return (s != null ? '' + s : '').replace(regexp, sub != null ? sub : '');
-    };
-    DateUtil.prototype.startsWith = function (base, start) {
-        return start != null && base.substr(0, start.length) == start;
-    };
-    DateUtil.prototype.isType = function (s, o) {
-        return typeof s == o;
-    };
-    DateUtil.prototype.isFunction = function (f) {
-        return this.isType(f, 'function');
-    };
-    DateUtil.prototype.isList = function (v) {
-        return !!v && v.length != null && !this.isString(v) && !this.isNode(v) && !this.isFunction(v);
-    };
-    DateUtil.prototype.isString = function (s) {
-        return this.isType(s, 'string');
-    };
-    DateUtil.prototype.isObject = function (f) {
-        return !!f && this.isType(f, 'object');
-    };
-    DateUtil.prototype.isNode = function (n) {
-        return n && n['nodeType'];
-    };
-    DateUtil.prototype.isNumber = function (n) {
-        return this.isType(n, 'number');
-    };
-    DateUtil.prototype.getFindFunc = function (findFunc) {
-        return this.isFunction(findFunc) ? findFunc : function (obj, index) {
-            if (findFunc === obj) {
-                return index;
-            }
-        };
-    };
-    DateUtil.prototype.getFindIndex = function (list, index, defaultIndex) {
-        return index == null ? defaultIndex :
-            index < 0 ? Math.max(list.length + index, 0) : Math.min(list.length, index);
-    };
-    DateUtil.prototype.find = function (list, findFunc, startIndex, endIndex) {
-        var f = this.getFindFunc(findFunc);
-        var e = this.getFindIndex(list, endIndex, list.length);
-        var r;
-        for (var i = this.getFindIndex(list, startIndex, 0); i < e; i++) {
-            if ((r = f.call(list, list[i], i)) != null) {
-                return r;
-            }
-        }
-    };
-    DateUtil.prototype.parseDate = function (date, fmt) {
-        var _this = this;
-        var indexMap = {}; // contains reGroupPosition -> typeLetter or [typeLetter, value array]
-        var reIndex = 1;
-        var timezoneOffsetMatch;
-        var timezoneIndex;
-        var match;
-        var format = this.replace(fmt, /^\?/);
-        if (format != fmt && !this.replace(date, /^\s+|\s+$/g)) {
-            return null;
-        }
-        if (match = /^\[([+-])(\d\d)(\d\d)\]\s*(.*)/.exec(format)) {
-            timezoneOffsetMatch = match;
-            format = match[4];
-        }
-        var parser = new RegExp(format.replace(/(.)(\1*)(?:\[([^\]]*)\])?/g, function (wholeMatch, placeholderChar, placeholderDigits, param) {
-            if (/[dmhkyhs]/i.test(placeholderChar)) {
-                indexMap[reIndex++] = placeholderChar;
-                var plen = placeholderDigits.length + 1;
-                return '(\\d' + (plen < 2 ? '+' : ('{1,' + plen + '}')) + ')';
-            }
-            else if (placeholderChar == 'z') {
-                timezoneIndex = reIndex;
-                reIndex += 3;
-                return '([+-])(\\d\\d)(\\d\\d)';
-            }
-            else if (/[Nna]/.test(placeholderChar)) {
-                indexMap[reIndex++] = [placeholderChar, param && param.split(',')];
-                return '([a-zA-Z\\u0080-\\u1fff]+)';
-            }
-            else if (/w/i.test(placeholderChar)) {
-                return '[a-zA-Z\\u0080-\\u1fff]+';
-            }
-            else if (/\s/.test(placeholderChar)) {
-                return '\\s+';
-            }
-            else {
-                return _this.replace(wholeMatch, /[\\\[\]\/{}()*+?.$|^-]/g, '\\$&');
-            }
-        }));
-        if (!(match = parser.exec(date))) {
-            return undefined;
-        }
-        var ctorArgs = [0, 0, 0, 0, 0, 0, 0];
-        var _loop_1 = function (i) {
-            var matchVal = match[i];
-            var indexEntry = indexMap[i];
-            if (this_1.isList(indexEntry)) {
-                var placeholderChar = indexEntry[0];
-                var mapEntry = this_1.parseDateMap[placeholderChar];
-                var ctorIndex = mapEntry[0];
-                var valList = indexEntry[1] || mapEntry[1];
-                var listValue = this_1.find(valList, function (v, index) {
-                    if (_this.startsWith(matchVal.toLowerCase(), v.toLowerCase())) {
-                        return index;
-                    }
-                });
-                if (listValue == null) {
-                    return { value: undefined };
-                }
-                if (placeholderChar == 'a') {
-                    ctorArgs[ctorIndex] += listValue * 12;
-                }
-                else {
-                    ctorArgs[ctorIndex] = listValue;
-                }
-            }
-            else if (indexEntry) {
-                var value = parseFloat(matchVal);
-                var mapEntry = this_1.parseDateMap[indexEntry];
-                if (this_1.isList(mapEntry)) {
-                    ctorArgs[mapEntry[0]] += value - mapEntry[1];
-                }
-                else {
-                    ctorArgs[mapEntry] += value;
-                }
-            }
-        };
-        var this_1 = this;
-        for (var i = 1; i < reIndex; i++) {
-            var state_1 = _loop_1(i);
-            if (typeof state_1 === "object")
-                return state_1.value;
-        }
-        var d = new Date(ctorArgs[0], ctorArgs[1], ctorArgs[2], ctorArgs[3], ctorArgs[4], ctorArgs[5], ctorArgs[6]);
-        return d;
-    };
-    /**
-     * Gets the first day of the month for the given date's month.
-     * @param {Date} date
-     * @returns {Date}
-     */
-    DateUtil.prototype.getFirstDateOfWeek = function (date, firstDayOfWeek) {
-        var day = date.getDate() - ((7 + date.getDay() - firstDayOfWeek) % 7);
-        return new Date(date.getFullYear(), date.getMonth(), day, date.getHours(), date.getMinutes());
-    };
-    /**
-     * Gets the first day of the month for the given date's month.
-     * @param {Date} date
-     * @returns {Date}
-     */
-    DateUtil.prototype.getFirstDateOfMonth = function (date) {
-        return new Date(date.getFullYear(), date.getMonth(), 1, date.getHours(), date.getMinutes());
-    };
-    /**
-     * Gets the number of days in the month for the given date's month.
-     * @param date
-     * @returns {number}
-     */
-    DateUtil.prototype.getNumberOfDaysInMonth = function (date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-    };
-    /**
-     * Get an arbitrary date in the month after the given date's month.
-     * @param date
-     * @returns {Date}
-     */
-    DateUtil.prototype.getDateInNextMonth = function (date) {
-        return new Date(date.getFullYear(), date.getMonth() + 1, 1, date.getHours(), date.getMinutes());
-    };
-    /**
-     * Get an arbitrary date in the month before the given date's month.
-     * @param date
-     * @returns {Date}
-     */
-    DateUtil.prototype.getDateInPreviousMonth = function (date) {
-        return new Date(date.getFullYear(), date.getMonth() - 1, 1, date.getHours(), date.getMinutes());
-    };
-    /**
-     * Gets whether two dates have the same month and year.
-     * @param {Date} d1
-     * @param {Date} d2
-     * @returns {boolean}
-     */
-    DateUtil.prototype.isSameMonthAndYear = function (d1, d2) {
-        return d1 && d2 && d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
-    };
-    /**
-     * Gets whether two dates are the same day (not not necesarily the same time).
-     * @param {Date} d1
-     * @param {Date} d2
-     * @returns {boolean}
-     */
-    DateUtil.prototype.isSameDay = function (d1, d2) {
-        return d1 && d2 && d1.getDate() == d2.getDate() && this.isSameMonthAndYear(d1, d2);
-    };
-    /**
-     * Gets whether a date is in the month immediately after some date.
-     * @param {Date} startDate The date from which to compare.
-     * @param {Date} endDate The date to check.
-     * @returns {boolean}
-     */
-    DateUtil.prototype.isInNextMonth = function (startDate, endDate) {
-        var nextMonth = this.getDateInNextMonth(startDate);
-        return this.isSameMonthAndYear(nextMonth, endDate);
-    };
-    /**
-     * Gets whether a date is in the month immediately before some date.
-     * @param {Date} startDate The date from which to compare.
-     * @param {Date} endDate The date to check.
-     * @returns {boolean}
-     */
-    DateUtil.prototype.isInPreviousMonth = function (startDate, endDate) {
-        var previousMonth = this.getDateInPreviousMonth(startDate);
-        return this.isSameMonthAndYear(endDate, previousMonth);
-    };
-    /**
-     * Gets the midpoint between two dates.
-     * @param {Date} d1
-     * @param {Date} d2
-     * @returns {Date}
-     */
-    DateUtil.prototype.getDateMidpoint = function (d1, d2) {
-        return this.createDateAtMidnight((d1.getTime() + d2.getTime()) / 2);
-    };
-    /**
-     * Gets the week of the month that a given date occurs in.
-     * @param {Date} date
-     * @returns {number} Index of the week of the month (zero-based).
-     */
-    DateUtil.prototype.getWeekOfMonth = function (date) {
-        var firstDayOfMonth = this.getFirstDateOfMonth(date);
-        return Math.floor((firstDayOfMonth.getDay() + date.getDate() - 1) / 7);
-    };
-    /**
-     * Gets a new date incremented by the given number of minutes. Number of minutes can be negative.
-     * @param {Date} date
-     * @param {number} numberOfMinutes
-     * @returns {Date}
-     */
-    DateUtil.prototype.incrementMinutes = function (date, numberOfMinutes) {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + numberOfMinutes);
-    };
-    /**
-     * Gets a new date incremented by the given number of hours. Number of hours can be negative.
-     * @param {Date} date
-     * @param {number} numberOfHours
-     * @returns {Date}
-     */
-    DateUtil.prototype.incrementHours = function (date, numberOfHours) {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + numberOfHours, date.getMinutes());
-    };
-    /**
-     * Gets a new date incremented by the given number of days. Number of days can be negative.
-     * @param {Date} date
-     * @param {number} numberOfDays
-     * @returns {Date}
-     */
-    DateUtil.prototype.incrementDays = function (date, numberOfDays) {
-        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + numberOfDays, date.getHours(), date.getMinutes());
-    };
-    /**
-     * Gets a new date incremented by the given number of months. Number of months can be negative.
-     * If the date of the given month does not match the target month, the date will be set to the
-     * last day of the month.
-     * @param {Date} date
-     * @param {number} numberOfMonths
-     * @returns {Date}
-     */
-    DateUtil.prototype.incrementMonths = function (date, numberOfMonths) {
-        // If the same date in the target month does not actually exist, the Date object will
-        // automatically advance *another* month by the number of missing days.
-        // For example, if you try to go from Jan. 30 to Feb. 30, you'll end up on March 2.
-        // So, we check if the month overflowed and go to the last day of the target month instead.
-        var dateInTargetMonth = new Date(date.getFullYear(), date.getMonth() + numberOfMonths, 1, date.getHours(), date.getMinutes());
-        var numberOfDaysInMonth = this.getNumberOfDaysInMonth(dateInTargetMonth);
-        if (numberOfDaysInMonth < date.getDate()) {
-            dateInTargetMonth.setDate(numberOfDaysInMonth);
-        }
-        else {
-            dateInTargetMonth.setDate(date.getDate());
-        }
-        return dateInTargetMonth;
-    };
-    /**
-     * Get the integer distance between two months. This *only* considers the month and year
-     * portion of the Date instances.
-     *
-     * @param {Date} start
-     * @param {Date} end
-     * @returns {number} Number of months between `start` and `end`. If `end` is before `start`
-     *     chronologically, this number will be negative.
-     */
-    DateUtil.prototype.getMonthDistance = function (start, end) {
-        return (12 * (end.getFullYear() - start.getFullYear())) + (end.getMonth() - start.getMonth());
-    };
-    /**
-     * Gets the last day of the month for the given date.
-     * @param {Date} date
-     * @returns {Date}
-     */
-    DateUtil.prototype.getLastDateOfMonth = function (date) {
-        return new Date(date.getFullYear(), date.getMonth(), this.getNumberOfDaysInMonth(date), date.getHours(), date.getMinutes());
-    };
-    /**
-     * Checks whether a date is valid.
-     * @param {Date} date
-     * @return {boolean} Whether the date is a valid Date.
-     */
-    DateUtil.prototype.isValidDate = function (date) {
-        return date != null && date.getTime && !isNaN(date.getTime());
-    };
-    /**
-     * Sets a date's time to midnight.
-     * @param {Date} date
-     */
-    DateUtil.prototype.setDateTimeToMidnight = function (date) {
-        if (this.isValidDate(date)) {
-            date.setHours(0, 0, 0, 0);
-        }
-    };
-    /**
-     * Creates a date with the time set to midnight.
-     * Drop-in replacement for two forms of the Date constructor:
-     * 1. No argument for Date representing now.
-     * 2. Single-argument value representing number of seconds since Unix Epoch
-     * or a Date object.
-     * @param {number|Date=} value
-     * @return {Date} New date with time set to midnight.
-     */
-    DateUtil.prototype.createDateAtMidnight = function (value) {
-        var date;
-        if (!value) {
-            date = new Date();
-        }
-        else {
-            date = new Date(value);
-        }
-        this.setDateTimeToMidnight(date);
-        return date;
-    };
-    /**
-     * Checks if a date is within a min and max range, ignoring the time component.
-     * If minDate or maxDate are not dates, they are ignored.
-     * @param {Date} date
-     * @param {Date} minDate
-     * @param {Date} maxDate
-     */
-    DateUtil.prototype.isDateWithinRange = function (date, minDate, maxDate) {
-        var dateAtMidnight = this.createDateAtMidnight(date);
-        var minDateAtMidnight = this.isValidDate(minDate) ? this.createDateAtMidnight(minDate) : null;
-        var maxDateAtMidnight = this.isValidDate(maxDate) ? this.createDateAtMidnight(maxDate) : null;
-        return (!minDateAtMidnight || minDateAtMidnight <= dateAtMidnight) &&
-            (!maxDateAtMidnight || maxDateAtMidnight >= dateAtMidnight);
-    };
-    /**
-     * Gets a new date incremented by the given number of years. Number of years can be negative.
-     * See `incrementMonths` for notes on overflow for specific dates.
-     * @param {Date} date
-     * @param {number} numberOfYears
-     * @returns {Date}
-     */
-    DateUtil.prototype.incrementYears = function (date, numberOfYears) {
-        return this.incrementMonths(date, numberOfYears * 12);
-    };
-    /**
-     * Get the integer distance between two years. This *only* considers the year portion of the
-     * Date instances.
-     *
-     * @param {Date} start
-     * @param {Date} end
-     * @returns {number} Number of months between `start` and `end`. If `end` is before `start`
-     *     chronologically, this number will be negative.
-     */
-    DateUtil.prototype.getYearDistance = function (start, end) {
-        return end.getFullYear() - start.getFullYear();
-    };
-    /**
-     * Clamps a date between a minimum and a maximum date.
-     * @param {Date} date Date to be clamped
-     * @param {Date=} minDate Minimum date
-     * @param {Date=} maxDate Maximum date
-     * @return {Date}
-     */
-    DateUtil.prototype.clampDate = function (date, minDate, maxDate) {
-        var boundDate = date;
-        if (minDate && date < minDate) {
-            boundDate = new Date(minDate.getTime());
-        }
-        if (maxDate && date > maxDate) {
-            boundDate = new Date(maxDate.getTime());
-        }
-        return boundDate;
-    };
-    /**
-     * Extracts and parses the timestamp from a DOM node.
-     * @param  {HTMLElement} node Node from which the timestamp will be extracted.
-     * @return {number} Time since epoch.
-     */
-    DateUtil.prototype.getTimestampFromNode = function (node) {
-        if (node && node.hasAttribute('data-timestamp')) {
-            return Number(node.getAttribute('data-timestamp'));
-        }
-    };
-    /**
-     * Checks if a month is within a min and max range, ignoring the date and time components.
-     * If minDate or maxDate are not dates, they are ignored.
-     * @param {Date} date
-     * @param {Date} minDate
-     * @param {Date} maxDate
-     */
-    DateUtil.prototype.isMonthWithinRange = function (date, minDate, maxDate) {
-        var month = date.getMonth();
-        var year = date.getFullYear();
-        return (!minDate || minDate.getFullYear() < year || minDate.getMonth() <= month) &&
-            (!maxDate || maxDate.getFullYear() > year || maxDate.getMonth() >= month);
-    };
-    return DateUtil;
-}());
-
-/**
- * This animation fades in the background color and text content of the
- * select's options. It is time delayed to occur 100ms after the overlay
- * panel has transformed in.
- */
-var fadeInContent$1 = _angular_animations.trigger('fadeInContent', [
-    _angular_animations.state('showing', _angular_animations.style({ opacity: 1 })),
-    _angular_animations.transition('void => showing', [
-        _angular_animations.style({ opacity: 0 }),
-        _angular_animations.animate("150ms 100ms cubic-bezier(0.55, 0, 0.55, 0.2)")
-    ])
-]);
-var slideCalendar = _angular_animations.trigger('slideCalendar', [
-    _angular_animations.transition('* => left', [
-        _angular_animations.animate(180, _angular_animations.keyframes([
-            _angular_animations.style({ transform: 'translateX(100%)', offset: 0.5 }),
-            _angular_animations.style({ transform: 'translateX(-100%)', offset: 0.51 }),
-            _angular_animations.style({ transform: 'translateX(0)', offset: 1 })
-        ]))
-    ]),
-    _angular_animations.transition('* => right', [
-        _angular_animations.animate(180, _angular_animations.keyframes([
-            _angular_animations.style({ transform: 'translateX(-100%)', offset: 0.5 }),
-            _angular_animations.style({ transform: 'translateX(100%)', offset: 0.51 }),
-            _angular_animations.style({ transform: 'translateX(0)', offset: 1 })
-        ]))
-    ])
-]);
-
-var __decorate$46 = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata$28 = (this && this.__metadata) || function (k, v) {
+var __metadata$30 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param$9 = (this && this.__param) || function (paramIndex, decorator) {
+var __param$10 = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 /** Change event object emitted by Md2Select. */
-var Md2DateChange = (function () {
+var Md2DateChange$1 = (function () {
     function Md2DateChange(source, value) {
         this.source = source;
         this.value = value;
@@ -8956,8 +9680,6 @@ exports.Md2Datepicker = (function () {
         this._required = false;
         this._disabled = false;
         this.today = new Date();
-        this._min = null;
-        this._max = null;
         this._years = [];
         this._dates = [];
         this._clockView = 'hour';
@@ -8981,6 +9703,7 @@ exports.Md2Datepicker = (function () {
         this.enableDates = [];
         this.disableDates = [];
         this.disableWeekDays = [];
+        this.timeInterval = 1;
         /** Position of the menu in the X axis. */
         this.positionX = 'after';
         /** Position of the menu in the Y axis. */
@@ -8992,12 +9715,15 @@ exports.Md2Datepicker = (function () {
         this._weekDays = this._locale.getDays();
         this.getYears();
     }
+    Md2Datepicker.prototype.ngAfterContentInit = function () {
+        this.date = this._date || this._util.today();
+    };
     Md2Datepicker.prototype.ngOnDestroy = function () { this.destroyPanel(); };
     Object.defineProperty(Md2Datepicker.prototype, "type", {
         get: function () { return this._type; },
         set: function (value) {
             this._type = value || 'date';
-            this._input.nativeElement.value = this._formatDate(this._value);
+            this._input.nativeElement.value = this._util.formatDate(this._value, this._format);
         },
         enumerable: true,
         configurable: true
@@ -9011,7 +9737,7 @@ exports.Md2Datepicker = (function () {
         set: function (value) {
             if (this._format !== value) {
                 this._format = value;
-                this._input.nativeElement.value = this._formatDate(this._value);
+                this._input.nativeElement.value = this._util.formatDate(this._value, this._format);
             }
         },
         enumerable: true,
@@ -9037,43 +9763,24 @@ exports.Md2Datepicker = (function () {
         configurable: true
     });
     Object.defineProperty(Md2Datepicker.prototype, "value", {
-        get: function () { return this._value; },
+        get: function () {
+            return this._value;
+        },
         set: function (value) {
             var _this = this;
             this._value = this.coerceDateProperty(value);
             this.date = this._value;
             setTimeout(function () {
-                _this._input.nativeElement.value = _this._formatDate(_this._value);
+                _this._input.nativeElement.value = _this._util.formatDate(_this._value, _this._format);
             });
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Md2Datepicker.prototype, "date", {
-        get: function () { return this._date || this.today; },
+        get: function () { return this._date; },
         set: function (value) {
-            if (value && this._util.isValidDate(value)) {
-                if (this._min && this._min > value) {
-                    value = this._min;
-                }
-                if (this._max && this._max < value) {
-                    value = this._max;
-                }
-                this._date = value;
-            }
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Md2Datepicker.prototype, "time", {
-        get: function () { return this.date.getHours() + ':' + this.date.getMinutes(); },
-        set: function (value) {
-            this.date = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(), parseInt(value.split(':')[0]), parseInt(value.split(':')[1]));
-            // if (this._clockView === 'hour') {
-            //  this.date.setHours(parseInt(value.split(':')[0]));
-            // } else {
-            //  this.date.setMinutes(parseInt(value.split(':')[1]));
-            // }
+            this._date = this._util.clampDate(value, this.min, this.max);
         },
         enumerable: true,
         configurable: true
@@ -9111,29 +9818,21 @@ exports.Md2Datepicker = (function () {
         configurable: true
     });
     Object.defineProperty(Md2Datepicker.prototype, "min", {
-        set: function (value) {
-            if (value && this._util.isValidDate(value)) {
-                this._min = new Date(value);
-                this._min.setHours(0, 0, 0, 0);
-                this.getYears();
-            }
-            else {
-                this._min = null;
-            }
+        /** The minimum selectable date. */
+        get: function () { return this._min; },
+        set: function (date) {
+            this._min = this._util.parse(date);
+            this.getYears();
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(Md2Datepicker.prototype, "max", {
-        set: function (value) {
-            if (value && this._util.isValidDate(value)) {
-                this._max = new Date(value);
-                this._max.setHours(0, 0, 0, 0);
-                this.getYears();
-            }
-            else {
-                this._max = null;
-            }
+        /** The maximum selectable date. */
+        get: function () { return this._max; },
+        set: function (date) {
+            this._max = this._util.parse(date);
+            this.getYears();
         },
         enumerable: true,
         configurable: true
@@ -9412,8 +10111,18 @@ exports.Md2Datepicker = (function () {
         }
         var el = event.target;
         var date = this._util.parseDate(el.value, this.format);
-        if (this.value !== date) {
-            this.value = date ? date : null;
+        var d = null;
+        if (this.value && date) {
+            d = new Date(this.value);
+            if (this.type !== 'time') {
+                d.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+            }
+            if (this.type !== 'date') {
+                d.setHours(date.getHours(), date.getMinutes());
+            }
+        }
+        if (this.value !== d) {
+            this.value = d ? d : null;
             this._emitChangeEvent();
         }
     };
@@ -9426,7 +10135,7 @@ exports.Md2Datepicker = (function () {
         this._scrollToSelectedYear();
     };
     Md2Datepicker.prototype.getYears = function () {
-        var startYear = this._min ? this._min.getFullYear() : 1900, endYear = this._max ? this._max.getFullYear() : this.today.getFullYear() + 100;
+        var startYear = this.min ? this.min.getFullYear() : 1900, endYear = this._max ? this._max.getFullYear() : this.today.getFullYear() + 100;
         this._years = [];
         for (var i = startYear; i <= endYear; i++) {
             this._years.push(i);
@@ -9543,8 +10252,8 @@ exports.Md2Datepicker = (function () {
      * @return boolean
      */
     Md2Datepicker.prototype._isBeforeMonth = function () {
-        return !this._min ? true :
-            this._min && this._util.getMonthDistance(this.date, this._min) < 0;
+        return !this.min ? true :
+            this.min && this._util.getMonthDistance(this.date, this.min) < 0;
     };
     /**
      * Check is After month enabled or not
@@ -9554,19 +10263,19 @@ exports.Md2Datepicker = (function () {
         return !this._max ? true :
             this._max && this._util.getMonthDistance(this.date, this._max) > 0;
     };
+    Md2Datepicker.prototype._onActiveTimeChange = function (event) {
+        this.date = event;
+    };
     Md2Datepicker.prototype._onTimeChange = function (event) {
-        if (this.time !== event) {
-            this.time = event;
+        this.value = event;
+        if (this._clockView === 'hour') {
+            this._clockView = 'minute';
         }
-    };
-    Md2Datepicker.prototype._onHourChange = function (event) {
-        this._clockView = 'minute';
-    };
-    Md2Datepicker.prototype._onMinuteChange = function (event) {
-        this.value = this.date;
-        this._emitChangeEvent();
-        this._onBlur();
-        this.close();
+        else {
+            this._clockView = 'hour';
+            this._onBlur();
+            this.close();
+        }
     };
     /**
      * Check the date is enabled or not
@@ -9592,7 +10301,7 @@ exports.Md2Datepicker = (function () {
                 return true;
             }
         }
-        return !this._util.isDateWithinRange(date, this._min, this._max);
+        return !this._util.isDateWithinRange(date, this.min, this._max);
     };
     /**
      * Generate Month Calendar
@@ -9651,7 +10360,7 @@ exports.Md2Datepicker = (function () {
     /** Emits an event when the user selects a date. */
     Md2Datepicker.prototype._emitChangeEvent = function () {
         this._onChange(this.value);
-        this.change.emit(new Md2DateChange(this, this.value));
+        this.change.emit(new Md2DateChange$1(this, this.value));
     };
     Md2Datepicker.prototype.writeValue = function (value) {
         this.value = value;
@@ -9660,31 +10369,6 @@ exports.Md2Datepicker = (function () {
     Md2Datepicker.prototype.registerOnTouched = function (fn) { this._onTouched = fn; };
     Md2Datepicker.prototype.setDisabledState = function (isDisabled) {
         this.disabled = isDisabled;
-    };
-    /**
-     * format date
-     * @param date Date Object
-     * @return string with formatted date
-     */
-    Md2Datepicker.prototype._formatDate = function (date) {
-        if (!this.format || !date) {
-            return '';
-        }
-        return this.format
-            .replace('yy', ('00' + date.getFullYear()).slice(-2))
-            .replace('y', '' + date.getFullYear())
-            .replace('MMMM', this._locale.months[date.getMonth()].full)
-            .replace('MMM', this._locale.months[date.getMonth()].short)
-            .replace('MM', ('0' + (date.getMonth() + 1)).slice(-2))
-            .replace('M', '' + (date.getMonth() + 1))
-            .replace('dd', ('0' + date.getDate()).slice(-2))
-            .replace('d', '' + date.getDate())
-            .replace('HH', ('0' + date.getHours()).slice(-2))
-            .replace('H', '' + date.getHours())
-            .replace('mm', ('0' + date.getMinutes()).slice(-2))
-            .replace('m', '' + date.getMinutes())
-            .replace('ss', ('0' + date.getSeconds()).slice(-2))
-            .replace('s', '' + date.getSeconds());
     };
     Md2Datepicker.prototype._subscribeToBackdrop = function () {
         var _this = this;
@@ -9737,124 +10421,128 @@ exports.Md2Datepicker = (function () {
     };
     return Md2Datepicker;
 }());
-__decorate$46([
+__decorate$51([
     _angular_core.ViewChild('portal'),
-    __metadata$28("design:type", _angular_core.TemplateRef)
+    __metadata$30("design:type", _angular_core.TemplateRef)
 ], exports.Md2Datepicker.prototype, "_templatePortal", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.ViewChild('input'),
-    __metadata$28("design:type", _angular_core.ElementRef)
+    __metadata$30("design:type", _angular_core.ElementRef)
 ], exports.Md2Datepicker.prototype, "_input", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Output(),
-    __metadata$28("design:type", _angular_core.EventEmitter)
+    __metadata$30("design:type", _angular_core.EventEmitter)
 ], exports.Md2Datepicker.prototype, "onOpen", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Output(),
-    __metadata$28("design:type", _angular_core.EventEmitter)
+    __metadata$30("design:type", _angular_core.EventEmitter)
 ], exports.Md2Datepicker.prototype, "onClose", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Output(),
-    __metadata$28("design:type", _angular_core.EventEmitter)
+    __metadata$30("design:type", _angular_core.EventEmitter)
 ], exports.Md2Datepicker.prototype, "change", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", String)
+    __metadata$30("design:type", String)
 ], exports.Md2Datepicker.prototype, "placeholder", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", String)
+    __metadata$30("design:type", String)
 ], exports.Md2Datepicker.prototype, "okLabel", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", String)
+    __metadata$30("design:type", String)
 ], exports.Md2Datepicker.prototype, "cancelLabel", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Number)
+    __metadata$30("design:type", Number)
 ], exports.Md2Datepicker.prototype, "tabindex", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Array)
+    __metadata$30("design:type", Array)
 ], exports.Md2Datepicker.prototype, "enableDates", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Array)
+    __metadata$30("design:type", Array)
 ], exports.Md2Datepicker.prototype, "disableDates", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Array)
+    __metadata$30("design:type", Array)
 ], exports.Md2Datepicker.prototype, "disableWeekDays", void 0);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Object),
-    __metadata$28("design:paramtypes", [String])
+    __metadata$30("design:type", Number)
+], exports.Md2Datepicker.prototype, "timeInterval", void 0);
+__decorate$51([
+    _angular_core.Input(),
+    __metadata$30("design:type", Object),
+    __metadata$30("design:paramtypes", [String])
 ], exports.Md2Datepicker.prototype, "type", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Object),
-    __metadata$28("design:paramtypes", [String])
+    __metadata$30("design:type", Object),
+    __metadata$30("design:paramtypes", [String])
 ], exports.Md2Datepicker.prototype, "format", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Object),
-    __metadata$28("design:paramtypes", [String])
+    __metadata$30("design:type", Object),
+    __metadata$30("design:paramtypes", [String])
 ], exports.Md2Datepicker.prototype, "mode", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Object),
-    __metadata$28("design:paramtypes", [String])
+    __metadata$30("design:type", Object),
+    __metadata$30("design:paramtypes", [String])
 ], exports.Md2Datepicker.prototype, "container", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Object),
-    __metadata$28("design:paramtypes", [Date])
+    __metadata$30("design:type", Object),
+    __metadata$30("design:paramtypes", [Date])
 ], exports.Md2Datepicker.prototype, "value", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Object),
-    __metadata$28("design:paramtypes", [Date])
+    __metadata$30("design:type", Object),
+    __metadata$30("design:paramtypes", [Date])
 ], exports.Md2Datepicker.prototype, "selected", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Boolean),
-    __metadata$28("design:paramtypes", [Object])
+    __metadata$30("design:type", Boolean),
+    __metadata$30("design:paramtypes", [Object])
 ], exports.Md2Datepicker.prototype, "required", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Boolean),
-    __metadata$28("design:paramtypes", [Object])
+    __metadata$30("design:type", Boolean),
+    __metadata$30("design:paramtypes", [Object])
 ], exports.Md2Datepicker.prototype, "disabled", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Date),
-    __metadata$28("design:paramtypes", [Date])
+    __metadata$30("design:type", Date),
+    __metadata$30("design:paramtypes", [Date])
 ], exports.Md2Datepicker.prototype, "min", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Date),
-    __metadata$28("design:paramtypes", [Date])
+    __metadata$30("design:type", Date),
+    __metadata$30("design:paramtypes", [Date])
 ], exports.Md2Datepicker.prototype, "max", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Boolean),
-    __metadata$28("design:paramtypes", [Boolean])
+    __metadata$30("design:type", Boolean),
+    __metadata$30("design:paramtypes", [Boolean])
 ], exports.Md2Datepicker.prototype, "openOnFocus", null);
-__decorate$46([
+__decorate$51([
     _angular_core.Input(),
-    __metadata$28("design:type", Boolean),
-    __metadata$28("design:paramtypes", [Boolean])
+    __metadata$30("design:type", Boolean),
+    __metadata$30("design:paramtypes", [Boolean])
 ], exports.Md2Datepicker.prototype, "isOpen", null);
-__decorate$46([
+__decorate$51([
     _angular_core.HostListener('click', ['$event']),
-    __metadata$28("design:type", Function),
-    __metadata$28("design:paramtypes", [MouseEvent]),
-    __metadata$28("design:returntype", void 0)
+    __metadata$30("design:type", Function),
+    __metadata$30("design:paramtypes", [MouseEvent]),
+    __metadata$30("design:returntype", void 0)
 ], exports.Md2Datepicker.prototype, "_handleClick", null);
-exports.Md2Datepicker = __decorate$46([
+exports.Md2Datepicker = __decorate$51([
     _angular_core.Component({selector: 'md2-datepicker',
-        template: "<div class=\"md2-datepicker-trigger\"><button type=\"button\" class=\"md2-datepicker-button\" tabindex=\"-1\" (click)=\"toggle()\"><svg *ngIf=\"type==='date'\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z\"></path></svg> <svg *ngIf=\"type==='time'\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z\"></path></svg> <svg *ngIf=\"type==='datetime'\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M15,13H16.5V15.82L18.94,17.23L18.19,18.53L15,16.69V13M19,8H5V19H9.67C9.24,18.09 9,17.07 9,16A7,7 0 0,1 16,9C17.07,9 18.09,9.24 19,9.67V8M5,21C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H6V1H8V3H16V1H18V3H19A2,2 0 0,1 21,5V11.1C22.24,12.36 23,14.09 23,16A7,7 0 0,1 16,23C14.09,23 12.36,22.24 11.1,21H5M16,11.15A4.85,4.85 0 0,0 11.15,16C11.15,18.68 13.32,20.85 16,20.85A4.85,4.85 0 0,0 20.85,16C20.85,13.32 18.68,11.15 16,11.15Z\"></path></svg></button><div class=\"md2-datepicker-input\" [class.md2-datepicker-input-focused]=\"_inputFocused\"><span class=\"md2-datepicker-placeholder\" [class.md2-floating-placeholder]=\"value || _inputFocused\">{{ placeholder }}</span> <input #input type=\"text\" class=\"md2-datepicker-value\" [tabindex]=\"tabindex\" [disabled]=\"disabled\" autocomplete=\"off\" (change)=\"$event.stopPropagation()\" (focus)=\"_handleFocus($event)\" (blur)=\"_handleBlur($event)\" (keydown)=\"_handleKeydown($event)\"> <span class=\"md2-datepicker-arrow\"></span></div></div><ng-template #portal><div class=\"md2-datepicker-panel\" [@fadeInContent]=\"'showing'\" (@fadeInContent.done)=\"_onPanelDone()\" (keydown)=\"_handleKeydown($event)\" [style.transformOrigin]=\"_transformOrigin\" [class.md2-datepicker-panel-done-animating]=\"_panelDoneAnimating\" tabindex=\"0\" [attr.container]=\"container\" [attr.mode]=\"mode\"><div class=\"md2-datepicker-header\"><div class=\"md2-datepicker-header-year\" *ngIf=\"type!=='time'\" [class.active]=\"_isYearsVisible\" (click)=\"_showYear()\">{{ date | date: 'y' }}</div><div class=\"md2-datepicker-header-date-time\"><span class=\"md2-datepicker-header-date\" *ngIf=\"type!=='time'\" [class.active]=\"_isCalendarVisible && !_isYearsVisible\" (click)=\"_showCalendar()\">{{ getDateLabel }} </span><span class=\"md2-datepicker-header-time\" *ngIf=\"type!=='date'\" [class.active]=\"!_isCalendarVisible\"><span class=\"md2-datepicker-header-hour\" [class.active]=\"_clockView === 'hour'\" (click)=\"_toggleHours('hour')\">{{ hours }}</span>:<span class=\"md2-datepicker-header-minute\" [class.active]=\"_clockView === 'minute'\" (click)=\"_toggleHours('minute')\">{{ minutes }}</span></span></div></div><div class=\"md2-datepicker-content\"><div class=\"md2-datepicker-calendar\" [class.active]=\"_isCalendarVisible\"><div class=\"md2-calendar-years\" [class.active]=\"_isYearsVisible\"><div class=\"md2-calendar-years-content\"><div *ngFor=\"let y of _years\" class=\"md2-calendar-year\" [class.selected]=\"y === date.getFullYear()\" (click)=\"_setYear(y)\">{{y}}</div></div></div><div class=\"md2-calendar-month\" [class.active]=\"!_isYearsVisible\"><div class=\"md2-calendar-header\"><div class=\"md2-button\" [class.disabled]=\"!_isBeforeMonth()\" (click)=\"_isBeforeMonth() && _updateMonth(-1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z\"></path></svg></div><div class=\"md2-calendar-month-year\" [@slideCalendar]=\"_calendarState\">{{ getMonthLabel }}</div><div class=\"md2-button\" [class.disabled]=\"!_isAfterMonth()\" (click)=\"_isAfterMonth() && _updateMonth(1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z\"></path></svg></div></div><table class=\"md2-calendar-dates\"><thead><tr><th *ngFor=\"let day of _weekDays\">{{day.xshort}}</th></tr></thead><tbody [@slideCalendar]=\"_calendarState\"><tr *ngFor=\"let w of _dates\"><td *ngFor=\"let d of w\"><div class=\"md2-calendar-day\" [class.today]=\"d.today\" [class.focus]=\"_util.isSameDay(date, d.date)\" [class.selected]=\"_util.isSameDay(selected, d.date)\" [class.disabled]=\"d.disabled\" [class.prev-month]=\"d.calMonth===_prevMonth\" [class.curr-month]=\"d.calMonth===_currMonth\" [class.next-month]=\"d.calMonth===_nextMonth\" (click)=\"_onClickDate($event,d)\">{{d.index}}</div></td></tr></tbody></table></div></div><md2-clock [class.active]=\"!_isCalendarVisible\" [time]=\"time\" [view]=\"_clockView\" (timeChange)=\"_onTimeChange($event)\" (onHourChange)=\"_onHourChange($event)\" (onMinuteChange)=\"_onMinuteChange($event)\"></md2-clock><div class=\"md2-datepicker-actions\"><div class=\"md2-button\" (click)=\"close()\">{{ cancelLabel }}</div><div class=\"md2-button\" (click)=\"_onClickOk()\">{{ okLabel }}</div></div></div></div></ng-template>",
-        styles: ["md2-datepicker{position:relative;display:inline-block;min-width:175px;outline:0;backface-visibility:hidden}md2-datepicker.md2-datepicker-disabled{pointer-events:none;cursor:default}.md2-datepicker-trigger{display:block;padding:18px 0 4px 46px;white-space:nowrap}.md2-datepicker-button{position:absolute;top:13px;left:0;display:inline-block;height:40px;width:40px;padding:8px;line-height:24px;color:rgba(0,0,0,.54);fill:currentColor;border:0;border-radius:50%;outline:0;user-select:none;cursor:pointer;box-sizing:border-box;background:0 0;vertical-align:middle;align-items:center;text-align:center}.md2-datepicker-button:focus{background-color:rgba(158,158,158,.2)}.md2-datepicker-disabled .md2-datepicker-button{color:rgba(0,0,0,.38)}.md2-datepicker-input{color:rgba(0,0,0,.38);border-bottom:1px solid rgba(0,0,0,.12);display:flex;justify-content:space-between;align-items:center;height:30px;min-width:168px;line-height:22px;position:relative;padding-right:20px;box-sizing:border-box}[aria-disabled=true] .md2-datepicker-input{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-color:transparent;background-position:0 bottom;cursor:default;user-select:none}.md2-datepicker-input.md2-datepicker-input-focused{color:#106cc8;border-color:#106cc8}md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) .md2-datepicker-input{color:#f44336;border-color:#f44336}.md2-datepicker-placeholder{position:absolute;right:18px;bottom:100%;left:0;padding:0 2px;transform:translate3d(0,26px,0) scale(1);transform-origin:left top;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;transition:all 150ms cubic-bezier(.25,.8,.25,1)}.md2-datepicker-placeholder.md2-floating-placeholder{left:-2px;text-align:left;transform:translate3d(0,6px,0) scale(.75)}[dir=rtl] .md2-datepicker-placeholder{right:0;left:18px;transform-origin:right top}[dir=rtl] .md2-datepicker-placeholder.md2-floating-placeholder{right:-2px;text-align:right}[aria-required=true] .md2-datepicker-placeholder::after{content:'*'}.md2-datepicker-value{position:relative;width:100%;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;color:rgba(0,0,0,.87);border:0;outline:0;background:0 0}.md2-datepicker-disabled .md2-datepicker-value{color:rgba(0,0,0,.38)}[dir=rtl] .md2-datepicker-value{left:auto;right:0}.md2-datepicker-arrow{position:absolute;right:0;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid;margin:0 4px;color:rgba(0,0,0,.38)}.md2-datepicker-input-focused .md2-datepicker-arrow{color:#106cc8}md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) .md2-datepicker-arrow{color:#f44336}.md2-datepicker-clear{position:absolute;right:0;height:20px;color:rgba(0,0,0,.54);cursor:pointer}.md2-datepicker-clear svg{fill:currentColor}.md2-datepicker-panel{width:276px;border-radius:3px;color:rgba(0,0,0,.87);background-color:#fff;overflow:hidden;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);outline:0;user-select:none}.md2-datepicker-panel[container=dialog]{box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12)}.md2-datepicker-panel[mode=landscape]{display:flex;width:426px}.md2-datepicker-header{padding:16px;color:#fff;font-weight:500;white-space:nowrap;background:#106cc8;box-sizing:border-box}[mode=landscape] .md2-datepicker-header{width:150px;min-width:150px;padding-right:15px;white-space:normal;word-wrap:break-word}.md2-datepicker-header-year{font-size:16px;opacity:.7;cursor:pointer}.md2-datepicker-header-year.active{opacity:1;pointer-events:none}.md2-datepicker-header-date-time{font-size:32px}.md2-datepicker-header-date{opacity:.7;cursor:pointer}.md2-datepicker-header-date.active{opacity:1;pointer-events:none}.md2-datepicker-header-time{opacity:.7;display:inline-block;padding-left:8px;cursor:pointer}.md2-datepicker-header-time.active{opacity:1;cursor:default}.md2-datepicker-header-time.active .md2-datepicker-header-hour,.md2-datepicker-header-time.active .md2-datepicker-header-minute{opacity:.7;cursor:pointer}.md2-datepicker-header-time.active .md2-datepicker-header-hour.active,.md2-datepicker-header-time.active .md2-datepicker-header-minute.active{opacity:1;pointer-events:none}[mode=landscape] .md2-datepicker-header-time{display:block;padding-left:0}.md2-datepicker-content{position:relative;width:100%;padding-top:280px;overflow:hidden}.md2-datepicker-calendar{position:absolute;top:0;right:100%;display:block;width:100%;height:280px;transition:.3s}.md2-datepicker-calendar.active{right:0}.md2-calendar-years{position:absolute;top:10px;right:100%;bottom:10px;display:block;width:100%;line-height:40px;background:#fff;overflow-x:hidden;overflow-y:auto;transition:.3s}.md2-calendar-years.active{right:0}.md2-calendar-years .md2-calendar-years-content{display:flex;flex-direction:column;justify-content:center;min-height:100%}.md2-calendar-year{position:relative;display:block;margin:0 auto;padding:0;font-size:17px;font-weight:400;text-align:center;cursor:pointer}.md2-calendar-year.selected{color:#106cc8;font-size:26px;font-weight:500}.md2-calendar-month{position:absolute;left:100%;display:block;width:100%;font-size:12px;font-weight:400;text-align:center;transition:.3s}.md2-calendar-month.active{left:0}.md2-calendar-header{display:flex;justify-content:space-between;font-size:14px;font-weight:700;text-align:center;line-height:48px}.md2-calendar-header .md2-calendar-month-year-header{width:100%}.md2-calendar-header .md2-button{display:inline-block;width:48px;height:48px;padding:12px;outline:0;border:0;cursor:pointer;background:0 0;box-sizing:border-box}.md2-calendar-header .md2-button svg{vertical-align:top}.md2-calendar-dates{margin:0 8px}.md2-calendar-dates th{width:35px;height:16px;font-weight:500;line-height:10px;opacity:.5}.md2-calendar-dates td{padding:0}.md2-calendar-day{position:relative;display:inline-block;width:35px;height:35px;border-radius:50%;text-align:center;cursor:pointer;line-height:35px;box-sizing:border-box}.md2-calendar-day.today{color:#106cc8}.md2-calendar-day.focus,.md2-calendar-day:hover{background:#e0e0e0}.md2-calendar-day.selected,.md2-calendar-day.selected:hover{color:#fff;background:#106cc8}.md2-calendar-day.disabled,.md2-calendar-day.disabled:hover{color:rgba(0,0,0,.43);background:0 0;pointer-events:none}.md2-calendar-day.next-month,.md2-calendar-day.prev-month{visibility:hidden}md2-clock{position:absolute;top:0;left:100%;display:block;width:240px;height:240px;margin:30px;font-size:14px;font-weight:400;text-align:center;background-color:#e0e0e0;border-radius:50%;overflow:hidden;transition:.3s}md2-clock.active{left:0}.md2-clock-center{position:absolute;top:50%;left:50%;height:6px;width:6px;margin:-3px;border-radius:50%;background-color:#106cc8}.md2-clock-hand{position:absolute;top:0;right:0;bottom:0;left:0;width:1px;height:99px;margin:0 auto;background-color:#106cc8;transform-origin:bottom}.md2-clock-hand::before{content:'';position:absolute;top:-4px;left:-4px;width:8px;height:8px;border-radius:50%;background-color:#106cc8}.md2-clock-hours,.md2-clock-minutes{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;visibility:hidden;transition:350ms;transform:scale(1.2)}.md2-clock-hours.active,.md2-clock-minutes.active{opacity:1;visibility:visible;transform:scale(1)}.md2-clock-minutes{transform:scale(.8)}.md2-clock-hour,.md2-clock-minute{position:absolute;width:34px;height:34px;line-height:34px;text-align:center;border-radius:50%;cursor:pointer}.md2-clock-hour:hover,.md2-clock-minute:hover{background:#fafafa}.md2-clock-hour.active,.md2-clock-minute.active{background:#65acf3}.md2-datepicker-actions{text-align:right}.md2-datepicker-actions .md2-button{display:inline-block;min-width:64px;margin:4px 8px 8px 0;padding:0 12px;font-size:14px;color:#106cc8;line-height:36px;text-align:center;text-transform:uppercase;border-radius:2px;cursor:pointer;box-sizing:border-box;transition:all 450ms cubic-bezier(.23,1,.32,1)}.md2-datepicker-actions .md2-button:hover{background:#ebebeb}@media (min-width:480px){.md2-datepicker-panel[mode=auto]{display:flex;width:426px}[mode=auto] .md2-datepicker-header{width:150px;min-width:150px;padding-right:15px;white-space:normal;word-wrap:break-word}[mode=auto] .md2-datepicker-header-time{display:block;padding-left:0}}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48}.cdk-overlay-dark-backdrop{background:rgba(0,0,0,.6)} /*# sourceMappingURL=datepicker.css.map */ "],
+        template: "<div class=\"md2-datepicker-trigger\"><button type=\"button\" class=\"md2-datepicker-button\" tabindex=\"-1\" (click)=\"toggle()\"><svg *ngIf=\"type==='date'\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z\"></path></svg> <svg *ngIf=\"type==='time'\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z\"></path></svg> <svg *ngIf=\"type==='datetime'\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M15,13H16.5V15.82L18.94,17.23L18.19,18.53L15,16.69V13M19,8H5V19H9.67C9.24,18.09 9,17.07 9,16A7,7 0 0,1 16,9C17.07,9 18.09,9.24 19,9.67V8M5,21C3.89,21 3,20.1 3,19V5C3,3.89 3.89,3 5,3H6V1H8V3H16V1H18V3H19A2,2 0 0,1 21,5V11.1C22.24,12.36 23,14.09 23,16A7,7 0 0,1 16,23C14.09,23 12.36,22.24 11.1,21H5M16,11.15A4.85,4.85 0 0,0 11.15,16C11.15,18.68 13.32,20.85 16,20.85A4.85,4.85 0 0,0 20.85,16C20.85,13.32 18.68,11.15 16,11.15Z\"></path></svg></button><div class=\"md2-datepicker-input\" [class.md2-datepicker-input-focused]=\"_inputFocused\"><span class=\"md2-datepicker-placeholder\" [class.md2-floating-placeholder]=\"value || _inputFocused\">{{ placeholder }}</span> <input #input type=\"text\" class=\"md2-datepicker-value\" [tabindex]=\"tabindex\" [disabled]=\"disabled\" autocomplete=\"off\" (change)=\"$event.stopPropagation()\" (click)=\"_handleFocus($event)\" (focus)=\"_handleFocus($event)\" (blur)=\"_handleBlur($event)\" (keydown)=\"_handleKeydown($event)\"> <span class=\"md2-datepicker-arrow\"></span></div></div><ng-template #portal><div class=\"md2-datepicker-panel\" [@fadeInContent]=\"'showing'\" (@fadeInContent.done)=\"_onPanelDone()\" (keydown)=\"_handleKeydown($event)\" [style.transformOrigin]=\"_transformOrigin\" [class.md2-datepicker-panel-done-animating]=\"_panelDoneAnimating\" tabindex=\"0\" [attr.container]=\"container\" [attr.mode]=\"mode\"><div class=\"md2-datepicker-header\"><div class=\"md2-datepicker-header-year\" *ngIf=\"type!=='time'\" [class.active]=\"_isYearsVisible\" (click)=\"_showYear()\">{{ date | date: 'y' }}</div><div class=\"md2-datepicker-header-date-time\"><span class=\"md2-datepicker-header-date\" *ngIf=\"type!=='time'\" [class.active]=\"_isCalendarVisible && !_isYearsVisible\" (click)=\"_showCalendar()\">{{ getDateLabel }} </span><span class=\"md2-datepicker-header-time\" *ngIf=\"type!=='date'\" [class.active]=\"!_isCalendarVisible\"><span class=\"md2-datepicker-header-hour\" [class.active]=\"_clockView === 'hour'\" (click)=\"_toggleHours('hour')\">{{ hours }}</span>:<span class=\"md2-datepicker-header-minute\" [class.active]=\"_clockView === 'minute'\" (click)=\"_toggleHours('minute')\">{{ minutes }}</span></span></div></div><div class=\"md2-datepicker-content\"><div class=\"md2-datepicker-calendar\" [class.active]=\"_isCalendarVisible\"><div class=\"md2-calendar-years\" [class.active]=\"_isYearsVisible\"><div class=\"md2-calendar-years-content\"><div *ngFor=\"let y of _years\" class=\"md2-calendar-year\" [class.selected]=\"y === date.getFullYear()\" (click)=\"_setYear(y)\">{{y}}</div></div></div><div class=\"md2-calendar-month\" [class.active]=\"!_isYearsVisible\"><div class=\"md2-calendar-header\"><div class=\"md2-button\" [class.disabled]=\"!_isBeforeMonth()\" (click)=\"_isBeforeMonth() && _updateMonth(-1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z\"></path></svg></div><div class=\"md2-calendar-month-year\" [@slideCalendar]=\"_calendarState\">{{ getMonthLabel }}</div><div class=\"md2-button\" [class.disabled]=\"!_isAfterMonth()\" (click)=\"_isAfterMonth() && _updateMonth(1)\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z\"></path></svg></div></div><table class=\"md2-calendar-dates\"><thead><tr><th *ngFor=\"let day of _weekDays\">{{day.xshort}}</th></tr></thead><tbody [@slideCalendar]=\"_calendarState\"><tr *ngFor=\"let w of _dates\"><td *ngFor=\"let d of w\"><div class=\"md2-calendar-day\" [class.today]=\"d.today\" [class.focus]=\"_util.isSameDay(date, d.date)\" [class.selected]=\"_util.isSameDay(selected, d.date)\" [class.disabled]=\"d.disabled\" [class.prev-month]=\"d.calMonth===_prevMonth\" [class.curr-month]=\"d.calMonth===_currMonth\" [class.next-month]=\"d.calMonth===_nextMonth\" (click)=\"_onClickDate($event,d)\">{{d.index}}</div></td></tr></tbody></table></div></div><md2-clock [class.active]=\"!_isCalendarVisible\" [startView]=\"_clockView\" [interval]=\"timeInterval\" [selected]=\"date\" [min]=\"min\" [max]=\"max\" (activeDateChange)=\"_onActiveTimeChange($event)\" (selectedChange)=\"_onTimeChange($event)\"></md2-clock><div class=\"md2-datepicker-actions\"><div class=\"md2-button\" (click)=\"close()\">{{ cancelLabel }}</div><div class=\"md2-button\" (click)=\"_onClickOk()\">{{ okLabel }}</div></div></div></div></ng-template>",
+        styles: ["md2-datepicker{position:relative;display:inline-block;min-width:175px;outline:0;backface-visibility:hidden}md2-datepicker.md2-datepicker-disabled{pointer-events:none;cursor:default}.md2-datepicker-trigger{display:block;padding:18px 0 4px 46px;white-space:nowrap}.md2-datepicker-button{position:absolute;top:13px;left:0;display:inline-block;height:40px;width:40px;padding:8px;line-height:24px;color:rgba(0,0,0,.54);fill:currentColor;border:0;border-radius:50%;outline:0;user-select:none;cursor:pointer;box-sizing:border-box;background:0 0;vertical-align:middle;align-items:center;text-align:center}.md2-datepicker-button:focus{background-color:rgba(158,158,158,.2)}.md2-datepicker-disabled .md2-datepicker-button{color:rgba(0,0,0,.38)}.md2-datepicker-input{color:rgba(0,0,0,.38);border-bottom:1px solid rgba(0,0,0,.12);display:flex;justify-content:space-between;align-items:center;height:30px;min-width:168px;line-height:22px;position:relative;padding-right:20px;box-sizing:border-box}[aria-disabled=true] .md2-datepicker-input{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-color:transparent;background-position:0 bottom;cursor:default;user-select:none}.md2-datepicker-input.md2-datepicker-input-focused{color:#106cc8;border-color:#106cc8}md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) .md2-datepicker-input{color:#f44336;border-color:#f44336}.md2-datepicker-placeholder{position:absolute;right:18px;bottom:100%;left:0;padding:0 2px;transform:translate3d(0,26px,0) scale(1);transform-origin:left top;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;transition:all 150ms cubic-bezier(.25,.8,.25,1)}.md2-datepicker-placeholder.md2-floating-placeholder{left:-2px;text-align:left;transform:translate3d(0,6px,0) scale(.75)}[dir=rtl] .md2-datepicker-placeholder{right:0;left:18px;transform-origin:right top}[dir=rtl] .md2-datepicker-placeholder.md2-floating-placeholder{right:-2px;text-align:right}[aria-required=true] .md2-datepicker-placeholder::after{content:'*'}.md2-datepicker-value{position:relative;width:100%;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;color:rgba(0,0,0,.87);border:0;outline:0;background:0 0}.md2-datepicker-disabled .md2-datepicker-value{color:rgba(0,0,0,.38)}[dir=rtl] .md2-datepicker-value{left:auto;right:0}.md2-datepicker-arrow{position:absolute;right:0;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid;margin:0 4px;color:rgba(0,0,0,.38)}.md2-datepicker-input-focused .md2-datepicker-arrow{color:#106cc8}md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) .md2-datepicker-arrow{color:#f44336}.md2-datepicker-clear{position:absolute;right:0;height:20px;color:rgba(0,0,0,.54);cursor:pointer}.md2-datepicker-clear svg{fill:currentColor}.md2-datepicker-panel{width:276px;border-radius:3px;color:rgba(0,0,0,.87);background-color:#fff;overflow:hidden;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);outline:0;user-select:none}.md2-datepicker-panel[container=dialog]{box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12)}.md2-datepicker-panel[mode=landscape]{display:flex;width:426px}.md2-datepicker-header{padding:16px;color:#fff;font-weight:500;white-space:nowrap;background:#106cc8;box-sizing:border-box}[mode=landscape] .md2-datepicker-header{width:150px;min-width:150px;padding-right:15px;white-space:normal;word-wrap:break-word}.md2-datepicker-header-year{font-size:16px;opacity:.7;cursor:pointer}.md2-datepicker-header-year.active{opacity:1;pointer-events:none}.md2-datepicker-header-date-time{font-size:32px}.md2-datepicker-header-date{opacity:.7;cursor:pointer}.md2-datepicker-header-date.active{opacity:1;pointer-events:none}.md2-datepicker-header-time{opacity:.7;display:inline-block;padding-left:8px;cursor:pointer}.md2-datepicker-header-time.active{opacity:1;cursor:default}.md2-datepicker-header-time.active .md2-datepicker-header-hour,.md2-datepicker-header-time.active .md2-datepicker-header-minute{opacity:.7;cursor:pointer}.md2-datepicker-header-time.active .md2-datepicker-header-hour.active,.md2-datepicker-header-time.active .md2-datepicker-header-minute.active{opacity:1;pointer-events:none}[mode=landscape] .md2-datepicker-header-time{display:block;padding-left:0}.md2-datepicker-content{position:relative;width:100%;padding-top:280px;overflow:hidden}.md2-datepicker-calendar{position:absolute;top:0;right:100%;display:block;width:100%;height:280px;transition:.3s}.md2-datepicker-calendar.active{right:0}.md2-calendar-years{position:absolute;top:10px;right:100%;bottom:10px;display:block;width:100%;line-height:40px;background:#fff;overflow-x:hidden;overflow-y:auto;transition:.3s}.md2-calendar-years.active{right:0}.md2-calendar-years .md2-calendar-years-content{display:flex;flex-direction:column;justify-content:center;min-height:100%}.md2-calendar-year{position:relative;display:block;margin:0 auto;padding:0;font-size:17px;font-weight:400;text-align:center;cursor:pointer}.md2-calendar-year.selected{color:#106cc8;font-size:26px;font-weight:500}.md2-calendar-month{position:absolute;left:100%;display:block;width:100%;font-size:12px;font-weight:400;text-align:center;transition:.3s}.md2-calendar-month.active{left:0}.md2-calendar-header{display:flex;justify-content:space-between;font-size:14px;font-weight:700;text-align:center;line-height:48px}.md2-calendar-header .md2-calendar-month-year-header{width:100%}.md2-calendar-header .md2-button{display:inline-block;width:48px;height:48px;padding:12px;outline:0;border:0;cursor:pointer;background:0 0;box-sizing:border-box}.md2-calendar-header .md2-button svg{vertical-align:top}.md2-calendar-dates{margin:0 8px}.md2-calendar-dates th{width:35px;height:16px;font-weight:500;line-height:10px;opacity:.5}.md2-calendar-dates td{padding:0}.md2-calendar-day{position:relative;display:inline-block;width:35px;height:35px;border-radius:50%;text-align:center;cursor:pointer;line-height:35px;box-sizing:border-box}.md2-calendar-day.today{color:#106cc8}.md2-calendar-day.focus,.md2-calendar-day:hover{background:#e0e0e0}.md2-calendar-day.selected,.md2-calendar-day.selected:hover{color:#fff;background:#106cc8}.md2-calendar-day.disabled,.md2-calendar-day.disabled:hover{color:rgba(0,0,0,.43);background:0 0;pointer-events:none}.md2-calendar-day.next-month,.md2-calendar-day.prev-month{visibility:hidden}md2-clock{position:absolute!important;top:0;left:100%;display:block;width:240px;height:240px;margin:18px!important;transition:.3s}md2-clock.active{left:0}.md2-datepicker-actions{text-align:right}.md2-datepicker-actions .md2-button{display:inline-block;min-width:64px;margin:4px 8px 8px 0;padding:0 12px;font-size:14px;color:#106cc8;line-height:36px;text-align:center;text-transform:uppercase;border-radius:2px;cursor:pointer;box-sizing:border-box;transition:all 450ms cubic-bezier(.23,1,.32,1)}.md2-datepicker-actions .md2-button:hover{background:#ebebeb}@media (min-width:480px){.md2-datepicker-panel[mode=auto]{display:flex;width:426px}[mode=auto] .md2-datepicker-header{width:150px;min-width:150px;padding-right:15px;white-space:normal;word-wrap:break-word}[mode=auto] .md2-datepicker-header-time{display:block;padding-left:0}}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48}.cdk-overlay-dark-backdrop{background:rgba(0,0,0,.6)} /*# sourceMappingURL=datepicker.css.map */ "],
         host: {
             'role': 'datepicker',
             '[class.md2-datepicker-disabled]': 'disabled',
@@ -9866,93 +10554,141 @@ exports.Md2Datepicker = __decorate$46([
             '(window:resize)': '_handleWindowResize($event)'
         },
         animations: [
-            fadeInContent$1,
+            fadeInContent,
             slideCalendar
         ],
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __param$9(5, _angular_core.Self()), __param$9(5, _angular_core.Optional()),
-    __metadata$28("design:paramtypes", [_angular_core.ElementRef, exports.Overlay,
+    __param$10(5, _angular_core.Self()), __param$10(5, _angular_core.Optional()),
+    __metadata$30("design:paramtypes", [_angular_core.ElementRef, exports.Overlay,
         _angular_core.ViewContainerRef, exports.DateLocale,
         DateUtil, _angular_forms.NgControl])
 ], exports.Md2Datepicker);
 
-var __decorate$48 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$52 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$29 = (this && this.__metadata) || function (k, v) {
+var __metadata$31 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var CLOCK_HOURS = 24;
-var CLOCK_MINUTES = 60;
-var CLOCK_RADIUS = 120;
-var CLOCK_INNER_RADIUS = 66;
-var CLOCK_OUTER_RADIUS = 99;
-var CLOCK_TICK_RADIUS = 17;
+var CLOCK_RADIUS = 50;
+var CLOCK_INNER_RADIUS = 27.5;
+var CLOCK_OUTER_RADIUS = 41.25;
+var CLOCK_TICK_RADIUS = 7.0833;
+/**
+ * A clock that is used as part of the datepicker.
+ * @docs-private
+ */
 exports.Md2Clock = (function () {
-    function Md2Clock(_element) {
+    function Md2Clock(_element, _locale, _util) {
         var _this = this;
         this._element = _element;
-        this._view = true;
+        this._locale = _locale;
+        this._util = _util;
+        this.interval = 1;
+        this.twelvehour = false;
+        /** Emits when the currently selected date changes. */
+        this.selectedChange = new _angular_core.EventEmitter();
+        this.activeDateChange = new _angular_core.EventEmitter();
+        /** Hours and Minutes representing the clock view. */
         this._hours = [];
         this._minutes = [];
-        this._hour = 0;
-        this._minute = 0;
-        this.timeChange = new _angular_core.EventEmitter();
-        this.onHourChange = new _angular_core.EventEmitter();
-        this.onMinuteChange = new _angular_core.EventEmitter();
-        this.renderClock();
+        /** Whether the clock is in hour view. */
+        this._hourView = true;
         this.mouseMoveListener = function (event) { _this._handleMousemove(event); };
         this.mouseUpListener = function (event) { _this._handleMouseup(event); };
     }
-    Object.defineProperty(Md2Clock.prototype, "time", {
-        get: function () { return this._time; },
+    Object.defineProperty(Md2Clock.prototype, "activeDate", {
+        /**
+         * The date to display in this clock view.
+         */
+        get: function () { return this._activeDate; },
         set: function (value) {
-            if (this._time !== value) {
-                this._time = value || '00:00';
-                this._hour = parseInt(this._time.split(':')[0]);
-                this._minute = parseInt(this._time.split(':')[1]);
+            var oldActiveDate = this._activeDate;
+            this._activeDate = this._util.clampDate(value, this.min, this.max);
+            if (!this._util.isSameMinute(oldActiveDate, this._activeDate)) {
+                this._init();
             }
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(Md2Clock.prototype, "view", {
+    Object.defineProperty(Md2Clock.prototype, "selected", {
+        /** The currently selected date. */
+        get: function () { return this._selected; },
         set: function (value) {
-            if (value === 'minute') {
-                this._view = false;
-            }
-            else {
-                this._view = true;
+            this._selected = this._util.parse(value);
+            if (this._selected) {
+                this.activeDate = this._selected;
             }
         },
         enumerable: true,
         configurable: true
     });
-    Object.defineProperty(Md2Clock.prototype, "hand", {
+    Object.defineProperty(Md2Clock.prototype, "min", {
+        /** The minimum selectable date. */
+        get: function () { return this._min; },
+        set: function (date) { this._min = this._util.parse(date); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Clock.prototype, "max", {
+        /** The maximum selectable date. */
+        get: function () { return this._max; },
+        set: function (date) { this._max = this._util.parse(date); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Clock.prototype, "startView", {
+        /** Whether the clock should be started in hour or minute view. */
+        set: function (value) {
+            this._hourView = value != 'minute';
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2Clock.prototype, "_hand", {
         get: function () {
+            this._selectedHour = this._util.getHour(this.activeDate);
+            this._selectedMinute = this._util.getMinute(this.activeDate);
             var deg = 0;
             var radius = CLOCK_OUTER_RADIUS;
-            if (this._view) {
-                var inner = this._hour > 0 && this._hour < 13;
-                radius = inner ? CLOCK_INNER_RADIUS : CLOCK_OUTER_RADIUS;
-                deg = Math.round(this._hour * (360 / (CLOCK_HOURS / 2)));
+            if (this._hourView) {
+                var outer = this.activeDate.getHours() > 0 && this.activeDate.getHours() < 13;
+                radius = outer ? CLOCK_OUTER_RADIUS : CLOCK_INNER_RADIUS;
+                if (this.twelvehour) {
+                    radius = CLOCK_OUTER_RADIUS;
+                }
+                deg = Math.round(this.activeDate.getHours() * (360 / (24 / 2)));
             }
             else {
-                deg = Math.round(this._minute * (360 / CLOCK_MINUTES));
+                deg = Math.round(this.activeDate.getMinutes() * (360 / 60));
             }
             return {
                 'transform': "rotate(" + deg + "deg)",
-                'height': radius + "px",
-                'margin-top': 120 - radius + "px"
+                'height': radius + "%",
+                'margin-top': 50 - radius + "%"
             };
         },
         enumerable: true,
         configurable: true
     });
+    Md2Clock.prototype.ngAfterContentInit = function () {
+        this.activeDate = this._activeDate || this._util.today();
+        this._init();
+    };
+    /** Handles hour selection in the clock view. */
+    Md2Clock.prototype._hourSelected = function () {
+        this._hourView = false;
+    };
+    /** Handles minute selection in the clock view. */
+    Md2Clock.prototype._minuteSelected = function () {
+        this._hourView = true;
+    };
+    /** Handles mousedown events on the clock body. */
     Md2Clock.prototype._handleMousedown = function (event) {
         this.setTime(event);
         document.addEventListener('mousemove', this.mouseMoveListener);
@@ -9969,38 +10705,62 @@ exports.Md2Clock = (function () {
         document.removeEventListener('touchmove', this.mouseMoveListener);
         document.removeEventListener('mouseup', this.mouseUpListener);
         document.removeEventListener('touchend', this.mouseUpListener);
-        if (this._view) {
-            this.onHourChange.emit(this._hour);
+        this.selectedChange.emit(this.activeDate);
+        if (this._hourView) {
+            this._hourSelected();
         }
         else {
-            this.onMinuteChange.emit(this._minute);
+            this._minuteSelected();
         }
     };
-    Md2Clock.prototype._handleKeydown = function (event) { };
-    /** Emits an event when the user selects a time. */
-    Md2Clock.prototype._emitChangeEvent = function () {
-        this.timeChange.emit(this.time);
-    };
-    /**
-     * render Click
-     */
-    Md2Clock.prototype.renderClock = function () {
+    /** Initializes this clock view. */
+    Md2Clock.prototype._init = function () {
         this._hours.length = 0;
-        for (var i = 0; i < CLOCK_HOURS; i++) {
-            var radian = i / 6 * Math.PI;
-            var inner = i > 0 && i < 13, radius = inner ? CLOCK_INNER_RADIUS : CLOCK_OUTER_RADIUS;
-            this._hours.push({
-                hour: i === 0 ? '00' : i,
-                top: CLOCK_RADIUS - Math.cos(radian) * radius - CLOCK_TICK_RADIUS,
-                left: CLOCK_RADIUS + Math.sin(radian) * radius - CLOCK_TICK_RADIUS
-            });
+        this._minutes.length = 0;
+        if (this.twelvehour) {
+            for (var i = 1; i < 13; i++) {
+                var radian = i / 6 * Math.PI;
+                var radius = CLOCK_OUTER_RADIUS;
+                var date = new Date(this.activeDate.getTime());
+                date.setHours(i + 1, 0, 0, 0);
+                var enabled = this._util.isDateWithinRange1(date, this.min, this.max);
+                this._hours.push({
+                    value: i,
+                    displayValue: i === 0 ? '00' : i,
+                    enabled: enabled,
+                    top: CLOCK_RADIUS - Math.cos(radian) * radius - CLOCK_TICK_RADIUS,
+                    left: CLOCK_RADIUS + Math.sin(radian) * radius - CLOCK_TICK_RADIUS,
+                });
+            }
         }
-        for (var i = 0; i < CLOCK_MINUTES; i += 5) {
+        else {
+            for (var i = 0; i < 24; i++) {
+                var radian = i / 6 * Math.PI;
+                var outer = i > 0 && i < 13, radius = outer ? CLOCK_OUTER_RADIUS : CLOCK_INNER_RADIUS;
+                var date = new Date(this.activeDate.getTime());
+                date.setHours(i + 1, 0, 0, 0);
+                var enabled = this._util.isDateWithinRange1(date, this.min, this.max);
+                this._hours.push({
+                    value: i,
+                    displayValue: i === 0 ? '00' : i,
+                    enabled: enabled,
+                    top: CLOCK_RADIUS - Math.cos(radian) * radius - CLOCK_TICK_RADIUS,
+                    left: CLOCK_RADIUS + Math.sin(radian) * radius - CLOCK_TICK_RADIUS,
+                    fontSize: i > 0 && i < 13 ? '' : '80%'
+                });
+            }
+        }
+        for (var i = 0; i < 60; i += 5) {
             var radian = i / 30 * Math.PI;
+            var date = new Date(this.activeDate.getTime());
+            date.setMinutes(i, 0, 0);
+            var enabled = this._util.isDateWithinRange1(date, this.min, this.max);
             this._minutes.push({
-                minute: i === 0 ? '00' : i,
+                value: i,
+                displayValue: i === 0 ? '00' : i,
+                enabled: enabled,
                 top: CLOCK_RADIUS - Math.cos(radian) * CLOCK_OUTER_RADIUS - CLOCK_TICK_RADIUS,
-                left: CLOCK_RADIUS + Math.sin(radian) * CLOCK_OUTER_RADIUS - CLOCK_TICK_RADIUS
+                left: CLOCK_RADIUS + Math.sin(radian) * CLOCK_OUTER_RADIUS - CLOCK_TICK_RADIUS,
             });
         }
     };
@@ -10018,69 +10778,102 @@ exports.Md2Clock = (function () {
         var x = (width / 2) - (pageX - triggerRect.left - window.pageXOffset);
         var y = (height / 2) - (pageY - triggerRect.top - window.pageYOffset);
         var radian = Math.atan2(-x, y);
-        var unit = Math.PI / (this._view ? 6 : 30);
+        var unit = Math.PI / (this._hourView ? 6 : (this.interval ? (30 / this.interval) : 30));
         var z = Math.sqrt(x * x + y * y);
-        var inner = this._view && z < (CLOCK_OUTER_RADIUS + CLOCK_INNER_RADIUS) / 2;
+        var outer = this._hourView && z > ((width * (CLOCK_OUTER_RADIUS / 100)) +
+            (width * (CLOCK_INNER_RADIUS / 100))) / 2;
         var value = 0;
         if (radian < 0) {
             radian = Math.PI * 2 + radian;
         }
         value = Math.round(radian / unit);
         radian = value * unit;
-        if (this._view) {
-            if (value === 12) {
-                value = 0;
+        var date = new Date(this.activeDate.getTime());
+        if (this._hourView) {
+            if (this.twelvehour) {
+                value = value === 0 ? 12 : value;
             }
-            value = inner ? (value === 0 ? 12 : value) : value === 0 ? 0 : value + 12;
-            this._hour = value;
+            else {
+                if (value === 12) {
+                    value = 0;
+                }
+                value = outer ? (value === 0 ? 12 : value) : value === 0 ? 0 : value + 12;
+            }
+            date.setHours(value);
         }
         else {
+            if (this.interval) {
+                value *= this.interval;
+            }
             if (value === 60) {
                 value = 0;
             }
-            this._minute = value;
+            date.setMinutes(value);
         }
-        this._time = this._hour + ':' + this._minute;
-        this._emitChangeEvent();
+        this.activeDate = this._util.clampDate(date, this.min, this.max);
+        this.activeDateChange.emit(this.activeDate);
     };
     return Md2Clock;
 }());
-__decorate$48([
-    _angular_core.Output(),
-    __metadata$29("design:type", _angular_core.EventEmitter)
-], exports.Md2Clock.prototype, "timeChange", void 0);
-__decorate$48([
-    _angular_core.Output(),
-    __metadata$29("design:type", _angular_core.EventEmitter)
-], exports.Md2Clock.prototype, "onHourChange", void 0);
-__decorate$48([
-    _angular_core.Output(),
-    __metadata$29("design:type", _angular_core.EventEmitter)
-], exports.Md2Clock.prototype, "onMinuteChange", void 0);
-__decorate$48([
+__decorate$52([
     _angular_core.Input(),
-    __metadata$29("design:type", Object),
-    __metadata$29("design:paramtypes", [String])
-], exports.Md2Clock.prototype, "time", null);
-__decorate$48([
+    __metadata$31("design:type", Date),
+    __metadata$31("design:paramtypes", [Date])
+], exports.Md2Clock.prototype, "activeDate", null);
+__decorate$52([
     _angular_core.Input(),
-    __metadata$29("design:type", String),
-    __metadata$29("design:paramtypes", [String])
-], exports.Md2Clock.prototype, "view", null);
-exports.Md2Clock = __decorate$48([
+    __metadata$31("design:type", Date),
+    __metadata$31("design:paramtypes", [Date])
+], exports.Md2Clock.prototype, "selected", null);
+__decorate$52([
+    _angular_core.Input(),
+    __metadata$31("design:type", Date),
+    __metadata$31("design:paramtypes", [Date])
+], exports.Md2Clock.prototype, "min", null);
+__decorate$52([
+    _angular_core.Input(),
+    __metadata$31("design:type", Date),
+    __metadata$31("design:paramtypes", [Date])
+], exports.Md2Clock.prototype, "max", null);
+__decorate$52([
+    _angular_core.Input(),
+    __metadata$31("design:type", String),
+    __metadata$31("design:paramtypes", [String])
+], exports.Md2Clock.prototype, "startView", null);
+__decorate$52([
+    _angular_core.Input(),
+    __metadata$31("design:type", Function)
+], exports.Md2Clock.prototype, "dateFilter", void 0);
+__decorate$52([
+    _angular_core.Input(),
+    __metadata$31("design:type", Number)
+], exports.Md2Clock.prototype, "interval", void 0);
+__decorate$52([
+    _angular_core.Input(),
+    __metadata$31("design:type", Boolean)
+], exports.Md2Clock.prototype, "twelvehour", void 0);
+__decorate$52([
+    _angular_core.Output(),
+    __metadata$31("design:type", Object)
+], exports.Md2Clock.prototype, "selectedChange", void 0);
+__decorate$52([
+    _angular_core.Output(),
+    __metadata$31("design:type", Object)
+], exports.Md2Clock.prototype, "activeDateChange", void 0);
+exports.Md2Clock = __decorate$52([
     _angular_core.Component({selector: 'md2-clock',
-        template: "<div class=\"md2-clock-center\"></div><div class=\"md2-clock-hand\" [ngStyle]=\"hand\"></div><div class=\"md2-clock-hours\" [class.active]=\"_view\"><div *ngFor=\"let h of _hours\" class=\"md2-clock-hour\" [class.active]=\"_hour == h.hour\" [style.top.px]=\"h.top\" [style.left.px]=\"h.left\">{{ h.hour }}</div></div><div class=\"md2-clock-minutes\" [class.active]=\"!_view\"><div *ngFor=\"let m of _minutes\" class=\"md2-clock-minute\" [class.active]=\"_minute == m.minute\" [style.top.px]=\"m.top\" [style.left.px]=\"m.left\">{{ m.minute }}</div></div>",
-        styles: ["md2-datepicker{position:relative;display:inline-block;min-width:175px;outline:0;backface-visibility:hidden}md2-datepicker.md2-datepicker-disabled{pointer-events:none;cursor:default}.md2-datepicker-trigger{display:block;padding:18px 0 4px 46px;white-space:nowrap}.md2-datepicker-button{position:absolute;top:13px;left:0;display:inline-block;height:40px;width:40px;padding:8px;line-height:24px;color:rgba(0,0,0,.54);fill:currentColor;border:0;border-radius:50%;outline:0;user-select:none;cursor:pointer;box-sizing:border-box;background:0 0;vertical-align:middle;align-items:center;text-align:center}.md2-datepicker-button:focus{background-color:rgba(158,158,158,.2)}.md2-datepicker-disabled .md2-datepicker-button{color:rgba(0,0,0,.38)}.md2-datepicker-input{color:rgba(0,0,0,.38);border-bottom:1px solid rgba(0,0,0,.12);display:flex;justify-content:space-between;align-items:center;height:30px;min-width:168px;line-height:22px;position:relative;padding-right:20px;box-sizing:border-box}[aria-disabled=true] .md2-datepicker-input{background-image:linear-gradient(to right,rgba(0,0,0,.26) 0,rgba(0,0,0,.26) 33%,transparent 0);background-size:4px 1px;background-repeat:repeat-x;border-color:transparent;background-position:0 bottom;cursor:default;user-select:none}.md2-datepicker-input.md2-datepicker-input-focused{color:#106cc8;border-color:#106cc8}md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) .md2-datepicker-input{color:#f44336;border-color:#f44336}.md2-datepicker-placeholder{position:absolute;right:18px;bottom:100%;left:0;padding:0 2px;transform:translate3d(0,26px,0) scale(1);transform-origin:left top;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;transition:all 150ms cubic-bezier(.25,.8,.25,1)}.md2-datepicker-placeholder.md2-floating-placeholder{left:-2px;text-align:left;transform:translate3d(0,6px,0) scale(.75)}[dir=rtl] .md2-datepicker-placeholder{right:0;left:18px;transform-origin:right top}[dir=rtl] .md2-datepicker-placeholder.md2-floating-placeholder{right:-2px;text-align:right}[aria-required=true] .md2-datepicker-placeholder::after{content:'*'}.md2-datepicker-value{position:relative;width:100%;white-space:nowrap;overflow-x:hidden;text-overflow:ellipsis;color:rgba(0,0,0,.87);border:0;outline:0;background:0 0}.md2-datepicker-disabled .md2-datepicker-value{color:rgba(0,0,0,.38)}[dir=rtl] .md2-datepicker-value{left:auto;right:0}.md2-datepicker-arrow{position:absolute;right:0;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid;margin:0 4px;color:rgba(0,0,0,.38)}.md2-datepicker-input-focused .md2-datepicker-arrow{color:#106cc8}md2-datepicker.ng-invalid.ng-touched:not(.md2-datepicker-disabled) .md2-datepicker-arrow{color:#f44336}.md2-datepicker-clear{position:absolute;right:0;height:20px;color:rgba(0,0,0,.54);cursor:pointer}.md2-datepicker-clear svg{fill:currentColor}.md2-datepicker-panel{width:276px;border-radius:3px;color:rgba(0,0,0,.87);background-color:#fff;overflow:hidden;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);outline:0;user-select:none}.md2-datepicker-panel[container=dialog]{box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12)}.md2-datepicker-panel[mode=landscape]{display:flex;width:426px}.md2-datepicker-header{padding:16px;color:#fff;font-weight:500;white-space:nowrap;background:#106cc8;box-sizing:border-box}[mode=landscape] .md2-datepicker-header{width:150px;min-width:150px;padding-right:15px;white-space:normal;word-wrap:break-word}.md2-datepicker-header-year{font-size:16px;opacity:.7;cursor:pointer}.md2-datepicker-header-year.active{opacity:1;pointer-events:none}.md2-datepicker-header-date-time{font-size:32px}.md2-datepicker-header-date{opacity:.7;cursor:pointer}.md2-datepicker-header-date.active{opacity:1;pointer-events:none}.md2-datepicker-header-time{opacity:.7;display:inline-block;padding-left:8px;cursor:pointer}.md2-datepicker-header-time.active{opacity:1;cursor:default}.md2-datepicker-header-time.active .md2-datepicker-header-hour,.md2-datepicker-header-time.active .md2-datepicker-header-minute{opacity:.7;cursor:pointer}.md2-datepicker-header-time.active .md2-datepicker-header-hour.active,.md2-datepicker-header-time.active .md2-datepicker-header-minute.active{opacity:1;pointer-events:none}[mode=landscape] .md2-datepicker-header-time{display:block;padding-left:0}.md2-datepicker-content{position:relative;width:100%;padding-top:280px;overflow:hidden}.md2-datepicker-calendar{position:absolute;top:0;right:100%;display:block;width:100%;height:280px;transition:.3s}.md2-datepicker-calendar.active{right:0}.md2-calendar-years{position:absolute;top:10px;right:100%;bottom:10px;display:block;width:100%;line-height:40px;background:#fff;overflow-x:hidden;overflow-y:auto;transition:.3s}.md2-calendar-years.active{right:0}.md2-calendar-years .md2-calendar-years-content{display:flex;flex-direction:column;justify-content:center;min-height:100%}.md2-calendar-year{position:relative;display:block;margin:0 auto;padding:0;font-size:17px;font-weight:400;text-align:center;cursor:pointer}.md2-calendar-year.selected{color:#106cc8;font-size:26px;font-weight:500}.md2-calendar-month{position:absolute;left:100%;display:block;width:100%;font-size:12px;font-weight:400;text-align:center;transition:.3s}.md2-calendar-month.active{left:0}.md2-calendar-header{display:flex;justify-content:space-between;font-size:14px;font-weight:700;text-align:center;line-height:48px}.md2-calendar-header .md2-calendar-month-year-header{width:100%}.md2-calendar-header .md2-button{display:inline-block;width:48px;height:48px;padding:12px;outline:0;border:0;cursor:pointer;background:0 0;box-sizing:border-box}.md2-calendar-header .md2-button svg{vertical-align:top}.md2-calendar-dates{margin:0 8px}.md2-calendar-dates th{width:35px;height:16px;font-weight:500;line-height:10px;opacity:.5}.md2-calendar-dates td{padding:0}.md2-calendar-day{position:relative;display:inline-block;width:35px;height:35px;border-radius:50%;text-align:center;cursor:pointer;line-height:35px;box-sizing:border-box}.md2-calendar-day.today{color:#106cc8}.md2-calendar-day.focus,.md2-calendar-day:hover{background:#e0e0e0}.md2-calendar-day.selected,.md2-calendar-day.selected:hover{color:#fff;background:#106cc8}.md2-calendar-day.disabled,.md2-calendar-day.disabled:hover{color:rgba(0,0,0,.43);background:0 0;pointer-events:none}.md2-calendar-day.next-month,.md2-calendar-day.prev-month{visibility:hidden}md2-clock{position:absolute;top:0;left:100%;display:block;width:240px;height:240px;margin:30px;font-size:14px;font-weight:400;text-align:center;background-color:#e0e0e0;border-radius:50%;overflow:hidden;transition:.3s}md2-clock.active{left:0}.md2-clock-center{position:absolute;top:50%;left:50%;height:6px;width:6px;margin:-3px;border-radius:50%;background-color:#106cc8}.md2-clock-hand{position:absolute;top:0;right:0;bottom:0;left:0;width:1px;height:99px;margin:0 auto;background-color:#106cc8;transform-origin:bottom}.md2-clock-hand::before{content:'';position:absolute;top:-4px;left:-4px;width:8px;height:8px;border-radius:50%;background-color:#106cc8}.md2-clock-hours,.md2-clock-minutes{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;visibility:hidden;transition:350ms;transform:scale(1.2)}.md2-clock-hours.active,.md2-clock-minutes.active{opacity:1;visibility:visible;transform:scale(1)}.md2-clock-minutes{transform:scale(.8)}.md2-clock-hour,.md2-clock-minute{position:absolute;width:34px;height:34px;line-height:34px;text-align:center;border-radius:50%;cursor:pointer}.md2-clock-hour:hover,.md2-clock-minute:hover{background:#fafafa}.md2-clock-hour.active,.md2-clock-minute.active{background:#65acf3}.md2-datepicker-actions{text-align:right}.md2-datepicker-actions .md2-button{display:inline-block;min-width:64px;margin:4px 8px 8px 0;padding:0 12px;font-size:14px;color:#106cc8;line-height:36px;text-align:center;text-transform:uppercase;border-radius:2px;cursor:pointer;box-sizing:border-box;transition:all 450ms cubic-bezier(.23,1,.32,1)}.md2-datepicker-actions .md2-button:hover{background:#ebebeb}@media (min-width:480px){.md2-datepicker-panel[mode=auto]{display:flex;width:426px}[mode=auto] .md2-datepicker-header{width:150px;min-width:150px;padding-right:15px;white-space:normal;word-wrap:break-word}[mode=auto] .md2-datepicker-header-time{display:block;padding-left:0}}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48}.cdk-overlay-dark-backdrop{background:rgba(0,0,0,.6)} /*# sourceMappingURL=datepicker.css.map */ "],
+        template: "<div class=\"md2-clock\"><div class=\"md2-clock-center\"></div><div class=\"md2-clock-hand\" [ngStyle]=\"_hand\"></div><div class=\"md2-clock-hours\" [class.active]=\"_hourView\"><div *ngFor=\"let item of _hours\" class=\"md2-clock-cell\" [class.md2-clock-cell-selected]=\"_selectedHour == item.value\" [class.md2-clock-cell-disabled]=\"!item.enabled\" [style.top]=\"item.top+'%'\" [style.left]=\"item.left+'%'\" [style.fontSize]=\"item.fontSize\">{{ item.displayValue }}</div></div><div class=\"md2-clock-minutes\" [class.active]=\"!_hourView\"><div *ngFor=\"let item of _minutes\" class=\"md2-clock-cell\" [class.md2-clock-cell-selected]=\"_selectedMinute == item.value\" [class.md2-clock-cell-disabled]=\"!item.enabled\" [style.top]=\"item.top+'%'\" [style.left]=\"item.left+'%'\">{{ item.displayValue }}</div></div></div>",
+        styles: [":host{position:relative;display:block;min-width:224px;margin:8px;font-size:14px;box-sizing:border-box;user-select:none}.md2-clock{position:relative;width:100%;height:0;padding-top:100%;background-color:#e0e0e0;border-radius:50%}.md2-clock-center{position:absolute;top:50%;left:50%;width:2%;height:2%;margin:-1%;border-radius:50%;background-color:#106cc8}.md2-clock-hand{position:absolute;top:0;right:0;bottom:0;left:0;width:1px;margin:0 auto;background-color:#106cc8;transform-origin:bottom}.md2-clock-hand::before{content:'';position:absolute;top:-4px;left:-4px;width:8px;height:8px;border-radius:50%;background-color:#106cc8}.md2-clock-hours,.md2-clock-minutes{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;visibility:hidden;transition:350ms;transform:scale(1.2)}.md2-clock-hours.active,.md2-clock-minutes.active{opacity:1;visibility:visible;transform:scale(1)}.md2-clock-minutes{transform:scale(.8)}.md2-clock-cell{position:absolute;display:flex;width:14.1666%;height:14.1666%;color:rgba(0,0,0,.87);justify-content:center;box-sizing:border-box;border-radius:50%;align-items:center;cursor:pointer}.md2-clock-cell:not(.md2-clock-cell-selected):not(.md2-clock-cell-disabled):hover{background-color:rgba(0,0,0,.1)}.md2-clock-cell.md2-clock-cell-disabled{color:rgba(0,0,0,.38);pointer-events:none}.md2-clock-cell.md2-clock-cell-selected{color:#fff;background-color:#1279e0} /*# sourceMappingURL=clock.css.map */ "],
         host: {
             'role': 'clock',
             '(mousedown)': '_handleMousedown($event)',
         },
-        encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __metadata$29("design:paramtypes", [_angular_core.ElementRef])
+    __metadata$31("design:paramtypes", [_angular_core.ElementRef, exports.DateLocale,
+        DateUtil])
 ], exports.Md2Clock);
 
-var __decorate$45 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$50 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -10091,7 +10884,7 @@ exports.Md2DatepickerModule = (function () {
     }
     return Md2DatepickerModule;
 }());
-exports.Md2DatepickerModule = __decorate$45([
+exports.Md2DatepickerModule = __decorate$50([
     _angular_core.NgModule({
         imports: [
             _angular_common.CommonModule,
@@ -10101,11 +10894,11 @@ exports.Md2DatepickerModule = __decorate$45([
         ],
         exports: [
             exports.Md2Datepicker,
-            exports.Md2Clock
+            exports.Md2Clock,
         ],
         declarations: [
             exports.Md2Datepicker,
-            exports.Md2Clock
+            exports.Md2Clock,
         ],
         providers: [exports.DateLocale, DateUtil],
         entryComponents: [
@@ -10113,6 +10906,419 @@ exports.Md2DatepickerModule = __decorate$45([
         ]
     })
 ], exports.Md2DatepickerModule);
+
+var __decorate$54 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata$32 = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var Md2DateRangePicker = (function () {
+    function Md2DateRangePicker(_element, overlay, _viewContainerRef) {
+        this._element = _element;
+        this.overlay = overlay;
+        this._viewContainerRef = _viewContainerRef;
+        this._panelOpen = false;
+        this._openOnFocus = false;
+        this._container = 'inline';
+        this._startDateValue = null;
+        this._startDatePicker = null;
+        this._endDateValue = null;
+        this._endDatePicker = null;
+        this._positionX = 'after';
+        this._positionY = 'below';
+        this._overlapTrigger = true;
+        this._transformOrigin = 'top';
+        this._panelDoneAnimating = false;
+        this.displayDates = true;
+        this._onTouched = function () { };
+        this.disabled = false;
+        this.placeholder = 'Select Date Range';
+        this.okLabel = 'Ok';
+        this.cancelLabel = 'Cancel';
+        this.startMinDate = null;
+        this.startMaxDate = null;
+        this.endMinDate = null;
+        this.endMaxDate = null;
+        this.onOpen = new _angular_core.EventEmitter();
+        this.onClose = new _angular_core.EventEmitter();
+        this.startDateValueChange = new _angular_core.EventEmitter();
+        this.startDatePickerChange = new _angular_core.EventEmitter();
+        this.endDateValueChange = new _angular_core.EventEmitter();
+        this.endDatePickerChange = new _angular_core.EventEmitter();
+    }
+    Object.defineProperty(Md2DateRangePicker.prototype, "startDateValue", {
+        get: function () { return this._startDateValue; },
+        set: function (d) { this._startDateValue = d; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "startDatePicker", {
+        get: function () { return this._startDatePicker; },
+        set: function (d) {
+            this._startDatePicker = d;
+            this.startDatePickerChange.emit(this._startDatePicker);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "endDateValue", {
+        get: function () { return this._endDateValue; },
+        set: function (d) { this._endDateValue = d; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "endDatePicker", {
+        get: function () { return this._endDatePicker; },
+        set: function (d) {
+            this._endDatePicker = d;
+            this.endDatePickerChange.emit(this._endDatePicker);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "format", {
+        get: function () {
+            return this._format || 'MM/dd/y';
+        },
+        set: function (value) {
+            this._format = value;
+            this.displayDates = (value !== 'none');
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "container", {
+        get: function () { return this._container; },
+        set: function (value) {
+            if (this._container !== value) {
+                this._container = value || 'inline';
+                this.destroyPanel();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "openOnFocus", {
+        get: function () { return this._openOnFocus; },
+        set: function (value) { this._openOnFocus = coerceBooleanProperty(value); },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Md2DateRangePicker.prototype, "isOpen", {
+        set: function (value) {
+            if (value && !this.panelOpen) {
+                this.open();
+            }
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Md2DateRangePicker.prototype.ngOnInit = function () { };
+    Md2DateRangePicker.prototype.ngOnDestroy = function () { this.destroyPanel(); };
+    Object.defineProperty(Md2DateRangePicker.prototype, "panelOpen", {
+        get: function () {
+            return this._panelOpen;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Md2DateRangePicker.prototype.toggle = function () {
+        this.panelOpen ? this.close() : this.open();
+    };
+    /** Opens the overlay panel. */
+    Md2DateRangePicker.prototype.open = function () {
+        if (this.disabled) {
+            return;
+        }
+        this._createOverlay();
+        if (!this._portal) {
+            this._portal = new TemplatePortal(this._templatePortal, this._viewContainerRef);
+        }
+        this._overlayRef.attach(this._portal);
+        this._subscribeToBackdrop();
+        this._panelOpen = true;
+    };
+    /** Closes the overlay panel and focuses the host element. */
+    Md2DateRangePicker.prototype.close = function () {
+        var _this = this;
+        setTimeout(function () {
+            _this._panelOpen = false;
+            if (_this._openOnFocus) {
+                _this._openOnFocus = false;
+                setTimeout(function () { _this._openOnFocus = true; }, 100);
+            }
+            if (_this._overlayRef) {
+                _this._overlayRef.detach();
+                _this._backdropSubscription.unsubscribe();
+            }
+        }, 10);
+    };
+    /** Removes the panel from the DOM. */
+    Md2DateRangePicker.prototype.destroyPanel = function () {
+        if (this._overlayRef) {
+            this._overlayRef.dispose();
+            this._overlayRef = null;
+            this._cleanUpSubscriptions();
+        }
+    };
+    Md2DateRangePicker.prototype._onPanelDone = function () {
+        if (this.panelOpen) {
+            this._focusPanel();
+            this.onOpen.emit();
+        }
+        else {
+            this.onClose.emit();
+        }
+    };
+    Md2DateRangePicker.prototype._onFadeInDone = function () {
+        this._panelDoneAnimating = this.panelOpen;
+    };
+    Md2DateRangePicker.prototype._handleWindowResize = function (event) {
+        if (this.container === 'inline') {
+            this.close();
+        }
+    };
+    Md2DateRangePicker.prototype._focusPanel = function () {
+        var el = document.querySelectorAll('.md2-date-range-picker-panel')[0];
+        el.focus();
+    };
+    Md2DateRangePicker.prototype._handleKeydown = function (event) {
+        if (this.disabled) {
+            return;
+        }
+        if (this.panelOpen) {
+            event.preventDefault();
+            event.stopPropagation();
+            switch (event.keyCode) {
+                case TAB:
+                case ESCAPE:
+                    this._onBlur();
+                    this.close();
+                    break;
+            }
+        }
+    };
+    Md2DateRangePicker.prototype.isOkDisabled = function () {
+        var bDisabled = (!this.startDatePicker || !this.endDatePicker);
+        return bDisabled;
+    };
+    /**
+     * Ok Button Event
+     */
+    Md2DateRangePicker.prototype._onClickOk = function () {
+        if (!this.isOkDisabled()) {
+            // Save dates
+            this.startDateValue = new Date(this.startDatePicker.getTime());
+            this.endDateValue = new Date(this.endDatePicker.getTime());
+            this.startDateValueChange.emit(this._startDateValue);
+            this.endDateValueChange.emit(this._endDateValue);
+            // Close dialog
+            this._onBlur();
+            this.close();
+        }
+    };
+    Md2DateRangePicker.prototype._onBlur = function () {
+        if (!this.panelOpen) {
+            this._onTouched();
+        }
+    };
+    Md2DateRangePicker.prototype._subscribeToBackdrop = function () {
+        var _this = this;
+        this._backdropSubscription = this._overlayRef.backdropClick().subscribe(function () {
+            _this.close();
+        });
+    };
+    /**
+     *  This method creates the overlay from the provided panel's template and saves its
+     *  OverlayRef so that it can be attached to the DOM when open is called.
+     */
+    Md2DateRangePicker.prototype._createOverlay = function () {
+        if (!this._overlayRef) {
+            var config = new OverlayState();
+            if (this.container === 'inline') {
+                var _a = this._positionX === 'before' ? ['end', 'start'] : ['start', 'end'], posX = _a[0], fallbackX = _a[1];
+                var _b = this._positionY === 'above' ? ['bottom', 'top'] : ['top', 'bottom'], overlayY = _b[0], fallbackOverlayY = _b[1];
+                var originY = overlayY;
+                var fallbackOriginY = fallbackOverlayY;
+                if (!this._overlapTrigger) {
+                    originY = overlayY === 'top' ? 'bottom' : 'top';
+                    fallbackOriginY = fallbackOverlayY === 'top' ? 'bottom' : 'top';
+                }
+                config.positionStrategy = this.overlay.position().connectedTo(this._element, { originX: posX, originY: originY }, { overlayX: posX, overlayY: overlayY })
+                    .withFallbackPosition({ originX: fallbackX, originY: originY }, { overlayX: fallbackX, overlayY: overlayY })
+                    .withFallbackPosition({ originX: posX, originY: fallbackOriginY }, { overlayX: posX, overlayY: fallbackOverlayY })
+                    .withFallbackPosition({ originX: fallbackX, originY: fallbackOriginY }, { overlayX: fallbackX, overlayY: fallbackOverlayY });
+                config.hasBackdrop = true;
+                config.backdropClass = 'cdk-overlay-transparent-backdrop';
+            }
+            else {
+                config.positionStrategy = this.overlay.position()
+                    .global()
+                    .centerHorizontally()
+                    .centerVertically();
+                config.hasBackdrop = true;
+            }
+            this._overlayRef = this.overlay.create(config);
+        }
+    };
+    Md2DateRangePicker.prototype._cleanUpSubscriptions = function () {
+        if (this._backdropSubscription) {
+            this._backdropSubscription.unsubscribe();
+        }
+    };
+    return Md2DateRangePicker;
+}());
+__decorate$54([
+    _angular_core.ViewChild('portal'),
+    __metadata$32("design:type", _angular_core.TemplateRef)
+], Md2DateRangePicker.prototype, "_templatePortal", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Boolean)
+], Md2DateRangePicker.prototype, "disabled", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", String)
+], Md2DateRangePicker.prototype, "placeholder", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", String)
+], Md2DateRangePicker.prototype, "okLabel", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", String)
+], Md2DateRangePicker.prototype, "cancelLabel", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Date)
+], Md2DateRangePicker.prototype, "startMinDate", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Object),
+    __metadata$32("design:paramtypes", [Date])
+], Md2DateRangePicker.prototype, "startDateValue", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Object),
+    __metadata$32("design:paramtypes", [Date])
+], Md2DateRangePicker.prototype, "startDatePicker", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Date)
+], Md2DateRangePicker.prototype, "startMaxDate", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Date)
+], Md2DateRangePicker.prototype, "endMinDate", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Object),
+    __metadata$32("design:paramtypes", [Date])
+], Md2DateRangePicker.prototype, "endDateValue", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Object),
+    __metadata$32("design:paramtypes", [Date])
+], Md2DateRangePicker.prototype, "endDatePicker", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Date)
+], Md2DateRangePicker.prototype, "endMaxDate", void 0);
+__decorate$54([
+    _angular_core.Output(),
+    __metadata$32("design:type", _angular_core.EventEmitter)
+], Md2DateRangePicker.prototype, "onOpen", void 0);
+__decorate$54([
+    _angular_core.Output(),
+    __metadata$32("design:type", _angular_core.EventEmitter)
+], Md2DateRangePicker.prototype, "onClose", void 0);
+__decorate$54([
+    _angular_core.Output(),
+    __metadata$32("design:type", _angular_core.EventEmitter)
+], Md2DateRangePicker.prototype, "startDateValueChange", void 0);
+__decorate$54([
+    _angular_core.Output(),
+    __metadata$32("design:type", _angular_core.EventEmitter)
+], Md2DateRangePicker.prototype, "startDatePickerChange", void 0);
+__decorate$54([
+    _angular_core.Output(),
+    __metadata$32("design:type", _angular_core.EventEmitter)
+], Md2DateRangePicker.prototype, "endDateValueChange", void 0);
+__decorate$54([
+    _angular_core.Output(),
+    __metadata$32("design:type", _angular_core.EventEmitter)
+], Md2DateRangePicker.prototype, "endDatePickerChange", void 0);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Object),
+    __metadata$32("design:paramtypes", [String])
+], Md2DateRangePicker.prototype, "format", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Object),
+    __metadata$32("design:paramtypes", [String])
+], Md2DateRangePicker.prototype, "container", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Boolean),
+    __metadata$32("design:paramtypes", [Boolean])
+], Md2DateRangePicker.prototype, "openOnFocus", null);
+__decorate$54([
+    _angular_core.Input(),
+    __metadata$32("design:type", Boolean),
+    __metadata$32("design:paramtypes", [Boolean])
+], Md2DateRangePicker.prototype, "isOpen", null);
+Md2DateRangePicker = __decorate$54([
+    _angular_core.Component({selector: 'md2-date-range-picker',
+        template: "<div class=\"md2-date-range-picker-trigger\"><button type=\"button\" class=\"md2-date-range-picker-button\" tabindex=\"-1\" (click)=\"toggle()\"><svg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z\"></path></svg></button><div class=\"range-display\" *ngIf=\"displayDates\"><div *ngIf=\"startDateValue && endDateValue; then rangeDisplay else rangeDisplayMissing\"></div></div></div><ng-template #rangeDisplayMissing><span class=\"range-display-missing\">(Select a date range)</span></ng-template><ng-template #rangeDisplay>{{ startDateValue | date: format }} to {{ endDateValue | date: format }}</ng-template><ng-template #portal><div class=\"md2-date-range-picker-panel\" [@fadeInContent]=\"'showing'\" (@fadeInContent.done)=\"_onPanelDone()\" [class.md2-date-range-picker-panel-done-animating]=\"_panelDoneAnimating\" [style.transformOrigin]=\"_transformOrigin\" [attr.container]=\"container\" tabindex=\"0\" (keydown)=\"_handleKeydown($event)\"><div class=\"md2-date-range-picker-header\">Date Range</div><div class=\"md2-date-range-picker-content\"><div class=\"md2-date-range-picker-picker\"><md2-calendar-range [(startDate)]=\"startDatePicker\" [(endDate)]=\"endDatePicker\" [startMinDate]=\"startMinDate\" [startMaxDate]=\"startMaxDate\" [endMinDate]=\"endMinDate\" [endMaxDate]=\"endMaxDate\" [disabled]=\"isDisabled\" #dateRangeControl></md2-calendar-range></div><div class=\"md2-datepicker-actions\"><div class=\"md2-button\" (click)=\"close()\">{{ cancelLabel }}</div><div class=\"md2-button\" (click)=\"_onClickOk()\" [class.disabled]=\"isOkDisabled()\">{{ okLabel }}</div></div></div></div></ng-template>",
+        styles: [":host{position:relative;display:inline-block;min-width:175px;outline:0;backface-visibility:hidden}:host.md2-date-range-picker-disabled{pointer-events:none;cursor:default}:host.md2-date-range-picker-disabled .md2-date-range-picker-button{color:rgba(0,0,0,.38)}:host.md2-date-range-picker-disabled .range-display{color:rgba(0,0,0,.38)}.md2-date-range-picker-trigger{display:flex;white-space:nowrap;align-items:center}.md2-date-range-picker-button{display:inline-block;height:40px;width:40px;padding:8px;line-height:24px;color:rgba(0,0,0,.54);fill:currentColor;border:0;border-radius:50%;outline:0;user-select:none;cursor:pointer;box-sizing:border-box;background:0 0;vertical-align:middle;align-items:center;text-align:center}.md2-date-range-picker-button:focus{background-color:rgba(158,158,158,.2)}.md2-date-range-picker-panel{width:640px;border-radius:3px;color:rgba(0,0,0,.87);background-color:#fff;overflow:hidden;box-shadow:0 5px 5px -3px rgba(0,0,0,.2),0 8px 10px 1px rgba(0,0,0,.14),0 3px 14px 2px rgba(0,0,0,.12);outline:0;user-select:none}.md2-date-range-picker-panel[container=dialog]{box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12)}.md2-date-range-picker-header{padding:16px;color:#fff;font-weight:500;white-space:nowrap;background:#106cc8;box-sizing:border-box}.md2-date-range-picker-content{position:relative;overflow:hidden}.md2-date-range-picker-picker{padding:20px}.md2-datepicker-actions{text-align:right}.md2-datepicker-actions .md2-button{display:inline-block;min-width:64px;margin:4px 8px 8px 0;padding:0 12px;font-size:14px;color:#106cc8;line-height:36px;text-align:center;text-transform:uppercase;border-radius:2px;cursor:pointer;box-sizing:border-box;transition:all 450ms cubic-bezier(.23,1,.32,1)}.md2-datepicker-actions .md2-button.disabled{color:rgba(0,0,0,.43);cursor:default}.md2-datepicker-actions .md2-button.disabled:hover{background:inherit}.md2-datepicker-actions .md2-button:hover{background:#ebebeb}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48}.cdk-overlay-dark-backdrop{background:rgba(0,0,0,.6)} /*# sourceMappingURL=date-range-picker.css.map */ "],
+        host: {
+            'role': 'date-range-picker',
+            '[class.md2-date-range-picker-disabled]': 'disabled',
+            '[class.md2-date-range-picker-opened]': 'panelOpen',
+            '[attr.aria-label]': 'placeholder',
+            '[attr.aria-disabled]': 'disabled.toString()'
+        },
+        animations: [
+            fadeInContent
+        ],
+    }),
+    __metadata$32("design:paramtypes", [_angular_core.ElementRef,
+        exports.Overlay,
+        _angular_core.ViewContainerRef])
+], Md2DateRangePicker);
+
+var __decorate$53 = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var Md2DateRangePickerModule = (function () {
+    function Md2DateRangePickerModule() {
+    }
+    return Md2DateRangePickerModule;
+}());
+Md2DateRangePickerModule = __decorate$53([
+    _angular_core.NgModule({
+        imports: [
+            _angular_common.CommonModule,
+            _angular_forms.FormsModule,
+            exports.StyleModule,
+            Md2CalendarRangeModule
+        ],
+        exports: [
+            Md2DateRangePicker
+        ],
+        declarations: [
+            Md2DateRangePicker
+        ]
+    })
+], Md2DateRangePickerModule);
 
 /**
  * Extends an object with the *enumerable* and *own* properties of one or more source objects,
@@ -10153,16 +11359,16 @@ var __extends$9 = (this && this.__extends) || function (d, b) {
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
-var __decorate$49 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$55 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$30 = (this && this.__metadata) || function (k, v) {
+var __metadata$33 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param$10 = (this && this.__param) || function (paramIndex, decorator) {
+var __param$11 = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 var Md2DialogConfig = (function () {
@@ -10179,9 +11385,9 @@ exports.Md2DialogPortal = (function (_super) {
     }
     return Md2DialogPortal;
 }(exports.TemplatePortalDirective));
-exports.Md2DialogPortal = __decorate$49([
+exports.Md2DialogPortal = __decorate$55([
     _angular_core.Directive({ selector: '[md2DialogPortal]' }),
-    __metadata$30("design:paramtypes", [_angular_core.TemplateRef, _angular_core.ViewContainerRef])
+    __metadata$33("design:paramtypes", [_angular_core.TemplateRef, _angular_core.ViewContainerRef])
 ], exports.Md2DialogPortal);
 /**
  * Title of a dialog element. Stays fixed to the top of the dialog when scrolling.
@@ -10191,7 +11397,7 @@ exports.Md2DialogTitle = (function () {
     }
     return Md2DialogTitle;
 }());
-exports.Md2DialogTitle = __decorate$49([
+exports.Md2DialogTitle = __decorate$55([
     _angular_core.Directive({ selector: 'md2-dialog-title' })
 ], exports.Md2DialogTitle);
 /**
@@ -10202,7 +11408,7 @@ exports.Md2DialogContent = (function () {
     }
     return Md2DialogContent;
 }());
-exports.Md2DialogContent = __decorate$49([
+exports.Md2DialogContent = __decorate$55([
     _angular_core.Directive({ selector: 'md2-dialog-content' })
 ], exports.Md2DialogContent);
 /**
@@ -10214,7 +11420,7 @@ exports.Md2DialogActions = (function () {
     }
     return Md2DialogActions;
 }());
-exports.Md2DialogActions = __decorate$49([
+exports.Md2DialogActions = __decorate$55([
     _angular_core.Directive({ selector: 'md2-dialog-footer, md2-dialog-actions' })
 ], exports.Md2DialogActions);
 exports.Md2Dialog = (function () {
@@ -10324,23 +11530,23 @@ exports.Md2Dialog = (function () {
     };
     return Md2Dialog;
 }());
-__decorate$49([
+__decorate$55([
     _angular_core.Output(),
-    __metadata$30("design:type", _angular_core.EventEmitter)
+    __metadata$33("design:type", _angular_core.EventEmitter)
 ], exports.Md2Dialog.prototype, "onOpen", void 0);
-__decorate$49([
+__decorate$55([
     _angular_core.Output(),
-    __metadata$30("design:type", _angular_core.EventEmitter)
+    __metadata$33("design:type", _angular_core.EventEmitter)
 ], exports.Md2Dialog.prototype, "onClose", void 0);
-__decorate$49([
+__decorate$55([
     _angular_core.ViewChild(exports.Md2DialogPortal),
-    __metadata$30("design:type", exports.Md2DialogPortal)
+    __metadata$33("design:type", exports.Md2DialogPortal)
 ], exports.Md2Dialog.prototype, "_portal", void 0);
-__decorate$49([
+__decorate$55([
     _angular_core.Input('title'),
-    __metadata$30("design:type", String)
+    __metadata$33("design:type", String)
 ], exports.Md2Dialog.prototype, "dialogTitle", void 0);
-exports.Md2Dialog = __decorate$49([
+exports.Md2Dialog = __decorate$55([
     _angular_core.Component({selector: 'md2-dialog',
         template: "<ng-template md2DialogPortal><div class=\"md2-dialog-panel\" [attr.role]=\"dialogConfig?.role\" [@state]=\"_visibility\" (@state.done)=\"_onPanelDone()\"><div class=\"md2-dialog-content\"><div class=\"md2-dialog-header\"><button *ngIf=\"!config.disableClose\" type=\"button\" class=\"close\" aria-label=\"Close\" (click)=\"close()\">&times;</button><h2 *ngIf=\"dialogTitle\" class=\"md2-dialog-title\" id=\"myDialogLabel\" [innerHtml]=\"dialogTitle\"></h2><ng-content select=\"md2-dialog-title\"></ng-content></div><div class=\"md2-dialog-body\"><ng-content select=\"md2-dialog-content\"></ng-content><ng-content></ng-content></div><ng-content select=\"md2-dialog-footer\"></ng-content><ng-content select=\"md2-dialog-actions\"></ng-content></div></div></ng-template>",
         styles: [".md2-dialog-panel{position:relative;max-width:90vw;width:600px;border-radius:3px;background-color:#fff;overflow:hidden;box-shadow:0 11px 15px -7px rgba(0,0,0,.2),0 24px 38px 3px rgba(0,0,0,.14),0 9px 46px 8px rgba(0,0,0,.12)}.md2-dialog-header{background:#2196f3;color:#fff;font-size:25px;line-height:1.1;font-weight:500;padding:0 48px 0 16px;border-bottom:1px solid #e5e5e5;word-wrap:break-word}.md2-dialog-header .close{position:absolute;top:21px;right:16px;display:inline-block;width:18px;height:18px;overflow:hidden;-webkit-appearance:none;padding:0;cursor:pointer;background:0 0;border:0;outline:0;opacity:.8;font-size:0;z-index:1;min-width:initial;box-shadow:none;margin:0}.md2-dialog-header .close::after,.md2-dialog-header .close::before{content:'';position:absolute;top:50%;left:0;width:100%;height:2px;margin-top:-1px;background:#ccc;border-radius:2px}.md2-dialog-header .close::before{transform:rotate(45deg)}.md2-dialog-header .close::after{transform:rotate(-45deg)}.md2-dialog-header .close:hover{opacity:1}.md2-dialog-header .md2-dialog-title,.md2-dialog-header md2-dialog-title{display:block;margin:0;padding:16px 0;font-size:25px;font-weight:500}.md2-dialog-header dialog-header{line-height:33px}.md2-dialog-body{position:relative;max-height:65vh;padding:16px;overflow-y:auto}.md2-dialog-footer,md2-dialog-footer{display:block;padding:16px;text-align:right;border-top:1px solid rgba(0,0,0,.12)}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.cdk-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1000;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.cdk-overlay-backdrop.cdk-overlay-backdrop-showing{opacity:.48}.cdk-overlay-dark-backdrop{background:rgba(0,0,0,.6)} /*# sourceMappingURL=dialog.css.map */ "],
@@ -10361,8 +11567,8 @@ exports.Md2Dialog = __decorate$49([
         encapsulation: _angular_core.ViewEncapsulation.None,
         exportAs: 'md2Dialog'
     }),
-    __param$10(1, _angular_core.Optional()), __param$10(1, _angular_core.SkipSelf()),
-    __metadata$30("design:paramtypes", [exports.Overlay,
+    __param$11(1, _angular_core.Optional()), __param$11(1, _angular_core.SkipSelf()),
+    __metadata$33("design:paramtypes", [exports.Overlay,
         exports.Md2Dialog])
 ], exports.Md2Dialog);
 /**
@@ -10391,7 +11597,7 @@ exports.Md2DialogModule = Md2DialogModule_1 = (function () {
     };
     return Md2DialogModule;
 }());
-exports.Md2DialogModule = Md2DialogModule_1 = __decorate$49([
+exports.Md2DialogModule = Md2DialogModule_1 = __decorate$55([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, exports.OverlayModule],
         exports: MD2_DIALOG_DIRECTIVES,
@@ -10402,7 +11608,7 @@ var Md2DialogModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$51 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$57 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -10413,7 +11619,7 @@ exports.Md2MenuContent = (function () {
     }
     return Md2MenuContent;
 }());
-exports.Md2MenuContent = __decorate$51([
+exports.Md2MenuContent = __decorate$57([
     _angular_core.Component({selector: '[md2-menu-content]',
         host: { 'role': 'menu' },
         template: '<ng-content></ng-content>',
@@ -10422,7 +11628,7 @@ exports.Md2MenuContent = __decorate$51([
     })
 ], exports.Md2MenuContent);
 
-var __decorate$52 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$58 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -10433,7 +11639,7 @@ exports.Md2MenuItem = (function () {
     }
     return Md2MenuItem;
 }());
-exports.Md2MenuItem = __decorate$52([
+exports.Md2MenuItem = __decorate$58([
     _angular_core.Component({selector: '[md2-menu-item]',
         host: {
             'role': 'menuitem'
@@ -10442,13 +11648,13 @@ exports.Md2MenuItem = __decorate$52([
     })
 ], exports.Md2MenuItem);
 
-var __decorate$53 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$59 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$31 = (this && this.__metadata) || function (k, v) {
+var __metadata$34 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 exports.Md2MenuTrigger = (function () {
@@ -10546,7 +11752,7 @@ exports.Md2MenuTrigger = (function () {
     };
     return Md2MenuTrigger;
 }());
-exports.Md2MenuTrigger = __decorate$53([
+exports.Md2MenuTrigger = __decorate$59([
     _angular_core.Directive({
         selector: '[md2-menu-trigger]',
         host: {
@@ -10555,10 +11761,10 @@ exports.Md2MenuTrigger = __decorate$53([
         },
         exportAs: 'md2MenuTrigger'
     }),
-    __metadata$31("design:paramtypes", [_angular_core.ElementRef, _angular_core.Renderer])
+    __metadata$34("design:paramtypes", [_angular_core.ElementRef, _angular_core.Renderer])
 ], exports.Md2MenuTrigger);
 
-var __decorate$50 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$56 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -10569,7 +11775,7 @@ exports.Md2Menu = (function () {
     }
     return Md2Menu;
 }());
-exports.Md2Menu = __decorate$50([
+exports.Md2Menu = __decorate$56([
     _angular_core.Component({selector: '[md2-menu]',
         template: '<ng-content></ng-content>',
         styles: ["[md2-menu]{position:relative;display:inline-block}[md2-menu-content]{position:absolute;top:0;left:0;display:inline-block;background:#fff;list-style:none;min-width:112px;max-width:280px;max-height:calc(100vh + 48px);padding:8px 0;margin:0;z-index:1001;border-radius:2px;transform:scale(0);transform-origin:left top;transition:all .2s linear;box-shadow:0 2px 6px 1px rgba(0,0,0,.34)}[md2-menu-item] [md2-menu-content]{left:100%;margin:-8px 0}[md2-menu-content][x-position=before]{right:0;left:auto;transform-origin:right top}[md2-menu-item] [md2-menu-content][x-position=before]{right:100%}[md2-menu-content][y-position=above]{top:auto;bottom:0;transform-origin:left bottom}[md2-menu-content][y-position=above][x-position=before]{transform-origin:right bottom}.open>[md2-menu-content]{transform:scale(1)}[md2-menu-item]{position:relative;width:100%;cursor:pointer;user-select:none;outline:0;border:none;white-space:nowrap;text-overflow:ellipsis;display:flex;flex-direction:row;align-items:center;height:36px;padding:0 16px;font-size:16px;text-align:start;text-decoration:none;background:0 0;color:rgba(0,0,0,.87);box-sizing:border-box}[md2-menu-item][disabled]{color:rgba(0,0,0,.38)}[md2-menu-item].open,[md2-menu-item]:focus:not([disabled]),[md2-menu-item]:hover:not([disabled]){background:rgba(0,0,0,.04);text-decoration:none}[md2-menu-item]>[md2-menu-trigger]{display:block;height:36px;width:calc(100% + 32px);margin:0 -16px;padding:0 16px;font:inherit;color:inherit;text-align:left;background:0 0;outline:0;border:0;cursor:pointer;box-shadow:none}.md-overlay-container{position:fixed;pointer-events:none;top:0;left:0;height:100%;width:100%;z-index:1000}.md-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000}.md-overlay-backdrop{position:absolute;top:0;bottom:0;left:0;right:0;z-index:1;pointer-events:auto;transition:opacity .4s cubic-bezier(.25,.8,.25,1);opacity:0}.md-overlay-transparent-backdrop{background:0 0}.md-overlay-backdrop.md-overlay-backdrop-showing{opacity:.48} /*# sourceMappingURL=menu.css.map */ "],
@@ -10586,7 +11792,7 @@ exports.Md2MenuModule = Md2MenuModule_1 = (function () {
     };
     return Md2MenuModule;
 }());
-exports.Md2MenuModule = Md2MenuModule_1 = __decorate$50([
+exports.Md2MenuModule = Md2MenuModule_1 = __decorate$56([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule],
         exports: [exports.Md2Menu, exports.Md2MenuContent, exports.Md2MenuItem, exports.Md2MenuTrigger],
@@ -10597,13 +11803,13 @@ var Md2MenuModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$54 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$60 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$32 = (this && this.__metadata) || function (k, v) {
+var __metadata$35 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 /** Change event object that is emitted when the tab has changed. */
@@ -10631,37 +11837,37 @@ exports.Md2Transclude = (function () {
     });
     return Md2Transclude;
 }());
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", Object),
-    __metadata$32("design:paramtypes", [_angular_core.TemplateRef])
+    __metadata$35("design:type", Object),
+    __metadata$35("design:paramtypes", [_angular_core.TemplateRef])
 ], exports.Md2Transclude.prototype, "md2Transclude", null);
-exports.Md2Transclude = __decorate$54([
+exports.Md2Transclude = __decorate$60([
     _angular_core.Directive({ selector: '[md2Transclude]' }),
-    __metadata$32("design:paramtypes", [_angular_core.ViewContainerRef])
+    __metadata$35("design:paramtypes", [_angular_core.ViewContainerRef])
 ], exports.Md2Transclude);
 exports.Md2Tab = (function () {
     function Md2Tab() {
     }
     return Md2Tab;
 }());
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", String)
+    __metadata$35("design:type", String)
 ], exports.Md2Tab.prototype, "label", void 0);
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", Boolean)
+    __metadata$35("design:type", Boolean)
 ], exports.Md2Tab.prototype, "active", void 0);
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", Boolean)
+    __metadata$35("design:type", Boolean)
 ], exports.Md2Tab.prototype, "disabled", void 0);
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", String)
+    __metadata$35("design:type", String)
 ], exports.Md2Tab.prototype, "class", void 0);
-exports.Md2Tab = __decorate$54([
+exports.Md2Tab = __decorate$60([
     _angular_core.Component({selector: 'md2-tab',
         template: "<ng-content></ng-content>",
         host: {
@@ -10677,9 +11883,9 @@ exports.Md2TabLabel = (function () {
     }
     return Md2TabLabel;
 }());
-exports.Md2TabLabel = __decorate$54([
+exports.Md2TabLabel = __decorate$60([
     _angular_core.Directive({ selector: '[md2-tab-label]' }),
-    __metadata$32("design:paramtypes", [_angular_core.TemplateRef, exports.Md2Tab])
+    __metadata$35("design:paramtypes", [_angular_core.TemplateRef, exports.Md2Tab])
 ], exports.Md2TabLabel);
 exports.Md2Tabs = (function () {
     function Md2Tabs(elementRef) {
@@ -10914,28 +12120,28 @@ exports.Md2Tabs = (function () {
     };
     return Md2Tabs;
 }());
-__decorate$54([
+__decorate$60([
     _angular_core.ContentChildren(exports.Md2Tab),
-    __metadata$32("design:type", _angular_core.QueryList)
+    __metadata$35("design:type", _angular_core.QueryList)
 ], exports.Md2Tabs.prototype, "tabs", void 0);
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", String)
+    __metadata$35("design:type", String)
 ], exports.Md2Tabs.prototype, "class", void 0);
-__decorate$54([
+__decorate$60([
     _angular_core.Input(),
-    __metadata$32("design:type", Object),
-    __metadata$32("design:paramtypes", [Object])
+    __metadata$35("design:type", Object),
+    __metadata$35("design:paramtypes", [Object])
 ], exports.Md2Tabs.prototype, "selectedIndex", null);
-__decorate$54([
+__decorate$60([
     _angular_core.Output(),
-    __metadata$32("design:type", _angular_core.EventEmitter)
+    __metadata$35("design:type", _angular_core.EventEmitter)
 ], exports.Md2Tabs.prototype, "change", void 0);
-__decorate$54([
+__decorate$60([
     _angular_core.Output(),
-    __metadata$32("design:type", _angular_core.EventEmitter)
+    __metadata$35("design:type", _angular_core.EventEmitter)
 ], exports.Md2Tabs.prototype, "selectedIndexChange", void 0);
-exports.Md2Tabs = __decorate$54([
+exports.Md2Tabs = __decorate$60([
     _angular_core.Component({selector: 'md2-tabs',
         template: "<div class=\"md2-tabs-header-wrapper\"><div role=\"button\" class=\"md2-prev-button\" [class.disabled]=\"!canPageBack()\" *ngIf=\"_shouldPaginate\" (click)=\"previousPage()\"><em class=\"prev-icon\">Prev</em></div><div role=\"button\" class=\"md2-next-button\" [class.disabled]=\"!canPageForward()\" *ngIf=\"_shouldPaginate\" (click)=\"nextPage()\"><em class=\"next-icon\">Next</em></div><div class=\"md2-tabs-canvas\" [class.md2-paginated]=\"_shouldPaginate\" role=\"tablist\" tabindex=\"0\" (keydown.arrowRight)=\"focusNextTab()\" (keydown.arrowLeft)=\"focusPreviousTab()\" (keydown.enter)=\"selectedIndex = focusIndex\" (mousewheel)=\"scroll($event)\"><div class=\"md2-tabs-header\" [style.marginLeft]=\"-_offsetLeft + 'px'\"><div class=\"md2-tab-label\" role=\"tab\" *ngFor=\"let tab of tabs; let i = index\" [class.focus]=\"focusIndex === i\" [class.active]=\"selectedIndex === i\" [class.disabled]=\"tab.disabled\" (click)=\"focusIndex = selectedIndex = i\"><span [md2Transclude]=\"tab.labelRef\">{{tab.label}}</span></div><div class=\"md2-tab-ink-bar\" [style.left]=\"_inkBarLeft\" [style.width]=\"_inkBarWidth\"></div></div></div></div><div class=\"md2-tabs-body-wrapper\"><ng-content></ng-content></div>",
         styles: ["md2-tabs{position:relative;overflow:hidden;display:block;margin:0;border:1px solid #e1e1e1;border-radius:2px}.md2-tabs-header-wrapper{position:relative;display:block;height:48px;background:#fff;border-width:0 0 1px;border-style:solid;border-color:rgba(0,0,0,.12);margin:0;padding:0;list-style:none;user-select:none}.md2-tabs-header-wrapper::after{content:'';display:table;clear:both}.md2-next-button,.md2-prev-button{position:absolute;top:0;height:100%;width:32px;padding:8px 0;z-index:2;cursor:pointer}.md2-next-button.disabled,.md2-prev-button.disabled{opacity:.25;cursor:default}.md2-prev-button{left:0}.md2-next-button{right:0}.md2-next-button .next-icon,.md2-prev-button .prev-icon{display:block;width:12px;height:12px;font-size:0;border-width:0 0 2px 2px;border-style:solid;border-color:#757575;border-radius:1px;transform:rotate(45deg);margin:10px}.md2-next-button .next-icon{border-width:2px 2px 0 0}.md2-tabs-canvas{position:relative;height:100%;overflow:hidden;display:block;outline:0}.md2-tabs-canvas.md2-paginated{margin:0 32px}.md2-tabs-header{position:relative;display:inline-block;height:100%;white-space:nowrap;transition:.5s cubic-bezier(.35,0,.25,1)}.md2-tab-label{position:relative;height:100%;color:rgba(0,0,0,.54);font-size:14px;text-align:center;line-height:24px;padding:12px 24px;transition:background-color 350ms cubic-bezier(.35,0,.25,1);cursor:pointer;white-space:nowrap;text-transform:uppercase;display:inline-block;font-weight:500;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;overflow:hidden;-ms-text-overflow:ellipsis;-o-text-overflow:ellipsis;text-overflow:ellipsis}.md2-tab-label.active{color:#106cc8}.md2-tabs-canvas:focus .md2-tab-label.focus{background:rgba(0,0,0,.05)}.md2-tab-label.disabled{color:rgba(0,0,0,.26);pointer-events:none;user-select:none;-webkit-user-drag:none;opacity:.5;cursor:default}.md2-tab-ink-bar{position:absolute;bottom:0;height:2px;background:#ff5252;transition:250ms cubic-bezier(.35,0,.25,1)}.md2-tabs-body-wrapper{position:relative;min-height:0;display:block;clear:both}md2-tab{padding:16px;display:none;position:relative}md2-tab.active{display:block;position:relative} /*# sourceMappingURL=tabs.css.map */ "],
@@ -10945,7 +12151,7 @@ exports.Md2Tabs = __decorate$54([
         },
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __metadata$32("design:paramtypes", [_angular_core.ElementRef])
+    __metadata$35("design:paramtypes", [_angular_core.ElementRef])
 ], exports.Md2Tabs);
 var MD2_TABS_DIRECTIVES = [exports.Md2TabLabel, exports.Md2Tabs, exports.Md2Tab];
 exports.Md2TabsModule = Md2TabsModule_1 = (function () {
@@ -10959,7 +12165,7 @@ exports.Md2TabsModule = Md2TabsModule_1 = (function () {
     };
     return Md2TabsModule;
 }());
-exports.Md2TabsModule = Md2TabsModule_1 = __decorate$54([
+exports.Md2TabsModule = Md2TabsModule_1 = __decorate$60([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule],
         exports: MD2_TABS_DIRECTIVES,
@@ -10970,13 +12176,13 @@ var Md2TabsModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$55 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$61 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$33 = (this && this.__metadata) || function (k, v) {
+var __metadata$36 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var noop = function () { };
@@ -11386,58 +12592,58 @@ exports.Md2Tags = (function () {
     };
     return Md2Tags;
 }());
-__decorate$55([
+__decorate$61([
     _angular_core.Output(),
-    __metadata$33("design:type", _angular_core.EventEmitter)
+    __metadata$36("design:type", _angular_core.EventEmitter)
 ], exports.Md2Tags.prototype, "change", void 0);
-__decorate$55([
+__decorate$61([
     _angular_core.Input(),
-    __metadata$33("design:type", String)
+    __metadata$36("design:type", String)
 ], exports.Md2Tags.prototype, "id", void 0);
-__decorate$55([
+__decorate$61([
     _angular_core.Input(),
-    __metadata$33("design:type", Number)
+    __metadata$36("design:type", Number)
 ], exports.Md2Tags.prototype, "tabindex", void 0);
-__decorate$55([
+__decorate$61([
     _angular_core.Input(),
-    __metadata$33("design:type", String)
+    __metadata$36("design:type", String)
 ], exports.Md2Tags.prototype, "placeholder", void 0);
-__decorate$55([
+__decorate$61([
     _angular_core.Input('md2-tag-text'),
-    __metadata$33("design:type", String)
+    __metadata$36("design:type", String)
 ], exports.Md2Tags.prototype, "textKey", void 0);
-__decorate$55([
+__decorate$61([
     _angular_core.Input('md2-tag-value'),
-    __metadata$33("design:type", String)
+    __metadata$36("design:type", String)
 ], exports.Md2Tags.prototype, "valueKey", void 0);
-__decorate$55([
+__decorate$61([
     _angular_core.Input(),
-    __metadata$33("design:type", Boolean),
-    __metadata$33("design:paramtypes", [Object])
+    __metadata$36("design:type", Boolean),
+    __metadata$36("design:paramtypes", [Object])
 ], exports.Md2Tags.prototype, "disabled", null);
-__decorate$55([
+__decorate$61([
     _angular_core.Input('md2-tags'),
-    __metadata$33("design:type", Array),
-    __metadata$33("design:paramtypes", [Array])
+    __metadata$36("design:type", Array),
+    __metadata$36("design:paramtypes", [Array])
 ], exports.Md2Tags.prototype, "tags", null);
-__decorate$55([
+__decorate$61([
     _angular_core.Input(),
-    __metadata$33("design:type", Object),
-    __metadata$33("design:paramtypes", [Object])
+    __metadata$36("design:type", Object),
+    __metadata$36("design:paramtypes", [Object])
 ], exports.Md2Tags.prototype, "value", null);
-__decorate$55([
+__decorate$61([
     _angular_core.HostListener('keydown', ['$event']),
-    __metadata$33("design:type", Function),
-    __metadata$33("design:paramtypes", [KeyboardEvent]),
-    __metadata$33("design:returntype", void 0)
+    __metadata$36("design:type", Function),
+    __metadata$36("design:paramtypes", [KeyboardEvent]),
+    __metadata$36("design:returntype", void 0)
 ], exports.Md2Tags.prototype, "_handleKeydown", null);
-__decorate$55([
+__decorate$61([
     _angular_core.HostListener('focus'),
-    __metadata$33("design:type", Function),
-    __metadata$33("design:paramtypes", []),
-    __metadata$33("design:returntype", void 0)
+    __metadata$36("design:type", Function),
+    __metadata$36("design:paramtypes", []),
+    __metadata$36("design:returntype", void 0)
 ], exports.Md2Tags.prototype, "_handleFocus", null);
-exports.Md2Tags = __decorate$55([
+exports.Md2Tags = __decorate$61([
     _angular_core.Component({selector: 'md2-tags',
         template: "<div class=\"md2-tags-container\"><span *ngFor=\"let t of _items; let i = index;\" class=\"md2-tag\" [class.active]=\"_selectedTag === i\" (click)=\"_selectTag(i)\"><span class=\"md2-tag-text\">{{t.text}}</span> <svg (click)=\"_removeTagAndFocusInput(i)\" width=\"24\" height=\"24\" viewBox=\"0 0 24 24\"><path d=\"M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z\"/></svg></span><div class=\"md2-tag-add\"><input [(ngModel)]=\"_inputValue\" type=\"text\" tabs=\"false\" autocomplete=\"off\" tabindex=\"-1\" [disabled]=\"disabled\" class=\"md2-tags-input\" [placeholder]=\"placeholder\" (focus)=\"_onInputFocus()\" (blur)=\"_onInputBlur()\" (keydown)=\"_handleInputKeydown($event)\" (change)=\"$event.stopPropagation()\"><ul *ngIf=\"isMenuVisible\" class=\"md2-tags-menu\" (mouseenter)=\"_listEnter()\" (mouseleave)=\"_listLeave()\"><li class=\"md2-option\" *ngFor=\"let l of _list; let i = index;\" [class.focused]=\"_focusedTag === i\" (click)=\"_addTag($event, i)\"><span class=\"md2-option-text\" [innerHtml]=\"l.text | highlight:_inputValue\"></span></li></ul></div></div>",
         styles: ["md2-tags{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-moz-backface-visibility:hidden;-webkit-backface-visibility:hidden;backface-visibility:hidden}md2-tags:focus{outline:0}md2-tags .md2-tags-container{position:relative;display:block;max-width:100%;padding:2px 3px 8px;border-bottom:1px solid rgba(0,0,0,.38);-moz-box-sizing:content-box;-webkit-box-sizing:content-box;box-sizing:content-box;min-width:64px;min-height:26px;cursor:text}md2-tags .md2-tags-container::after,md2-tags .md2-tags-container::before{display:table;content:' '}md2-tags .md2-tags-container::after{clear:both}md2-tags.focus .md2-tags-container{padding-bottom:7px;border-bottom:2px solid #106cc8}md2-tags.md2-tags-disabled .md2-tags-container{color:rgba(0,0,0,.38);cursor:default}md2-tags.md2-tags-disabled.focus .md2-tags-container{padding-bottom:8px;border-bottom:1px solid rgba(0,0,0,.38)}md2-tags .md2-tags-container .md2-tag{position:relative;cursor:default;border-radius:16px;display:block;height:32px;line-height:32px;margin:8px 8px 0 0;padding:0 26px 0 12px;float:left;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;max-width:100%;background:#e0e0e0;color:#424242;white-space:nowrap;overflow:hidden;-ms-text-overflow:ellipsis;-o-text-overflow:ellipsis;text-overflow:ellipsis}md2-tags .md2-tags-container .md2-tag.active{background:#106cc8;color:rgba(255,255,255,.87)}md2-tags .md2-tags-container .md2-tag svg{position:absolute;top:4px;right:2px;cursor:pointer;display:inline-block;overflow:hidden;fill:currentColor;color:rgba(0,0,0,.54)}md2-tags .md2-tag.active svg{color:rgba(255,255,255,.87)}md2-tags .md2-tag-add{position:relative;display:inline-block}md2-tags input{border:0;outline:0;margin-top:8px;height:32px;line-height:32px;padding:0;color:rgba(0,0,0,.87);background:0 0}md2-tags .md2-tags-container .md2-tags-placeholder{color:rgba(0,0,0,.38)}md2-tags .md2-tags-menu{position:absolute;left:0;top:100%;display:block;z-index:10;-ms-flex-direction:column;-webkit-flex-direction:column;flex-direction:column;width:100%;margin:6px 0 0;padding:8px 0;box-shadow:0 1px 3px 0 rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 2px 1px -1px rgba(0,0,0,.12);max-height:256px;min-height:48px;overflow-y:auto;-moz-transform:scale(1);-ms-transform:scale(1);-o-transform:scale(1);-webkit-transform:scale(1);transform:scale(1);background:#fff}md2-tags .md2-tags-menu .md2-option{cursor:pointer;position:relative;display:block;color:#212121;align-items:center;width:auto;transition:background 150ms linear;padding:12px 16px;line-height:24px}md2-tags .md2-tags-menu .md2-option.focused,md2-tags .md2-tags-menu .md2-option:hover{background:#eee}md2-tags .md2-tags-menu .md2-option .md2-option-text{width:auto;font-size:16px}md2-tags .highlight{color:#757575} /*# sourceMappingURL=tags.css.map */ "],
@@ -11453,7 +12659,7 @@ exports.Md2Tags = __decorate$55([
         encapsulation: _angular_core.ViewEncapsulation.None,
         exportAs: 'md2Tags'
     }),
-    __metadata$33("design:paramtypes", [_angular_core.ElementRef])
+    __metadata$36("design:paramtypes", [_angular_core.ElementRef])
 ], exports.Md2Tags);
 var MD2_TAGS_DIRECTIVES = [exports.Md2Tags];
 exports.Md2TagsModule = Md2TagsModule_1 = (function () {
@@ -11467,7 +12673,7 @@ exports.Md2TagsModule = Md2TagsModule_1 = (function () {
     };
     return Md2TagsModule;
 }());
-exports.Md2TagsModule = Md2TagsModule_1 = __decorate$55([
+exports.Md2TagsModule = Md2TagsModule_1 = __decorate$61([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule, _angular_forms.FormsModule, exports.Md2AutocompleteModule],
         exports: MD2_TAGS_DIRECTIVES,
@@ -11478,13 +12684,13 @@ var Md2TagsModule_1;
 
 //# sourceMappingURL=index.js.map
 
-var __decorate$56 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$62 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$34 = (this && this.__metadata) || function (k, v) {
+var __metadata$37 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 var Toast = (function () {
@@ -11595,9 +12801,9 @@ exports.Md2Toast = (function () {
     };
     return Md2Toast;
 }());
-exports.Md2Toast = __decorate$56([
+exports.Md2Toast = __decorate$62([
     _angular_core.Injectable(),
-    __metadata$34("design:paramtypes", [exports.Overlay, Md2ToastConfig])
+    __metadata$37("design:paramtypes", [exports.Overlay, Md2ToastConfig])
 ], exports.Md2Toast);
 exports.Md2ToastComponent = (function () {
     function Md2ToastComponent() {
@@ -11652,7 +12858,7 @@ exports.Md2ToastComponent = (function () {
     Md2ToastComponent.prototype.hasToast = function () { return this.toasts.length > 0; };
     return Md2ToastComponent;
 }());
-exports.Md2ToastComponent = __decorate$56([
+exports.Md2ToastComponent = __decorate$62([
     _angular_core.Component({
         selector: 'md2-toast',
         template: "<div *ngFor=\"let toast of toasts\" class=\"md2-toast\" [class.in]=\"toast.isVisible\" (click)=\"remove(toast.id)\">{{ toast.message }}</div>",
@@ -11672,7 +12878,7 @@ exports.Md2ToastModule = Md2ToastModule_1 = (function () {
     };
     return Md2ToastModule;
 }());
-exports.Md2ToastModule = Md2ToastModule_1 = __decorate$56([
+exports.Md2ToastModule = Md2ToastModule_1 = __decorate$62([
     _angular_core.NgModule({
         imports: [_angular_common.CommonModule],
         exports: MD2_TOAST_DIRECTIVES,
@@ -11702,16 +12908,16 @@ var Md2TooltipInvalidPositionError = (function (_super) {
     return Md2TooltipInvalidPositionError;
 }(MdError));
 
-var __decorate$58 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$64 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __metadata$35 = (this && this.__metadata) || function (k, v) {
+var __metadata$38 = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __param$11 = (this && this.__param) || function (paramIndex, decorator) {
+var __param$12 = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 /** Time in ms to delay before changing the tooltip visibility to hidden */
@@ -11930,30 +13136,30 @@ exports.Md2Tooltip = (function () {
     };
     return Md2Tooltip;
 }());
-__decorate$58([
+__decorate$64([
     _angular_core.Input('tooltip-position'),
-    __metadata$35("design:type", String),
-    __metadata$35("design:paramtypes", [String])
+    __metadata$38("design:type", String),
+    __metadata$38("design:paramtypes", [String])
 ], exports.Md2Tooltip.prototype, "position", null);
-__decorate$58([
+__decorate$64([
     _angular_core.Input('tooltipDisabled'),
-    __metadata$35("design:type", Boolean),
-    __metadata$35("design:paramtypes", [Object])
+    __metadata$38("design:type", Boolean),
+    __metadata$38("design:paramtypes", [Object])
 ], exports.Md2Tooltip.prototype, "disabled", null);
-__decorate$58([
+__decorate$64([
     _angular_core.Input('tooltip-delay'),
-    __metadata$35("design:type", Object)
+    __metadata$38("design:type", Object)
 ], exports.Md2Tooltip.prototype, "showDelay", void 0);
-__decorate$58([
+__decorate$64([
     _angular_core.Input('tooltip-hide-delay'),
-    __metadata$35("design:type", Object)
+    __metadata$38("design:type", Object)
 ], exports.Md2Tooltip.prototype, "hideDelay", void 0);
-__decorate$58([
+__decorate$64([
     _angular_core.Input('tooltip'),
-    __metadata$35("design:type", Object),
-    __metadata$35("design:paramtypes", [String])
+    __metadata$38("design:type", Object),
+    __metadata$38("design:paramtypes", [String])
 ], exports.Md2Tooltip.prototype, "message", null);
-exports.Md2Tooltip = __decorate$58([
+exports.Md2Tooltip = __decorate$64([
     _angular_core.Directive({
         selector: '[tooltip]',
         host: {
@@ -11962,8 +13168,8 @@ exports.Md2Tooltip = __decorate$58([
         },
         exportAs: 'md2Tooltip',
     }),
-    __param$11(7, _angular_core.Optional()),
-    __metadata$35("design:paramtypes", [exports.Overlay,
+    __param$12(7, _angular_core.Optional()),
+    __metadata$38("design:paramtypes", [exports.Overlay,
         _angular_core.ElementRef,
         exports.ScrollDispatcher,
         _angular_core.ViewContainerRef,
@@ -12086,7 +13292,7 @@ exports.Md2TooltipComponent = (function () {
     };
     return Md2TooltipComponent;
 }());
-exports.Md2TooltipComponent = __decorate$58([
+exports.Md2TooltipComponent = __decorate$64([
     _angular_core.Component({selector: 'md2-tooltip',
         template: "<div class=\"md2-tooltip\" [style.transform-origin]=\"_transformOrigin\" [@state]=\"_visibility\" (@state.done)=\"_afterVisibilityAnimation($event)\" [innerHTML]=\"message\"></div>",
         styles: ["md2-tooltip{pointer-events:none}.md2-tooltip{color:#fff;padding:6px 8px;border-radius:2px;font-size:10px;margin:14px;max-width:250px;background:rgba(97,97,97,.9);word-wrap:break-word}.cdk-global-overlay-wrapper,.cdk-overlay-container{pointer-events:none;top:0;left:0;height:100%;width:100%}.cdk-overlay-container{position:fixed;z-index:1000}.cdk-global-overlay-wrapper{display:flex;position:absolute;z-index:1000}.cdk-overlay-pane{position:absolute;pointer-events:auto;box-sizing:border-box;z-index:1000} /*# sourceMappingURL=tooltip.css.map */ "],
@@ -12105,11 +13311,11 @@ exports.Md2TooltipComponent = __decorate$58([
         },
         encapsulation: _angular_core.ViewEncapsulation.None
     }),
-    __param$11(0, _angular_core.Optional()),
-    __metadata$35("design:paramtypes", [exports.Dir, _angular_core.ChangeDetectorRef])
+    __param$12(0, _angular_core.Optional()),
+    __metadata$38("design:paramtypes", [exports.Dir, _angular_core.ChangeDetectorRef])
 ], exports.Md2TooltipComponent);
 
-var __decorate$57 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$63 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -12127,7 +13333,7 @@ exports.Md2TooltipModule = Md2TooltipModule_1 = (function () {
     };
     return Md2TooltipModule;
 }());
-exports.Md2TooltipModule = Md2TooltipModule_1 = __decorate$57([
+exports.Md2TooltipModule = Md2TooltipModule_1 = __decorate$63([
     _angular_core.NgModule({
         imports: [exports.OverlayModule, exports.CompatibilityModule, exports.PlatformModule],
         exports: [exports.Md2Tooltip, exports.Md2TooltipComponent, exports.CompatibilityModule],
@@ -12137,7 +13343,7 @@ exports.Md2TooltipModule = Md2TooltipModule_1 = __decorate$57([
 ], exports.Md2TooltipModule);
 var Md2TooltipModule_1;
 
-var __decorate$30 = (this && this.__decorate) || function (decorators, target, key, desc) {
+var __decorate$31 = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
@@ -12146,11 +13352,14 @@ var __decorate$30 = (this && this.__decorate) || function (decorators, target, k
 var MD2_MODULES = [
     exports.Md2AccordionModule,
     exports.Md2AutocompleteModule,
+    Md2CalendarModule,
+    Md2CalendarRangeModule,
     exports.Md2ChipsModule,
     exports.Md2CollapseModule,
     exports.Md2ColorpickerModule,
     exports.Md2DataTableModule,
     exports.Md2DatepickerModule,
+    Md2DateRangePickerModule,
     exports.Md2DialogModule,
     exports.Md2MenuModule,
     exports.MdRippleModule,
@@ -12173,16 +13382,19 @@ exports.Md2RootModule = (function () {
     }
     return Md2RootModule;
 }());
-exports.Md2RootModule = __decorate$30([
+exports.Md2RootModule = __decorate$31([
     _angular_core.NgModule({
         imports: [
             exports.Md2AccordionModule.forRoot(),
             exports.Md2AutocompleteModule.forRoot(),
+            Md2CalendarModule,
+            Md2CalendarRangeModule,
             exports.Md2ChipsModule.forRoot(),
             exports.Md2CollapseModule.forRoot(),
             exports.Md2ColorpickerModule.forRoot(),
             exports.Md2DataTableModule.forRoot(),
             exports.Md2DatepickerModule,
+            Md2DateRangePickerModule,
             exports.Md2DialogModule.forRoot(),
             exports.Md2MenuModule.forRoot(),
             exports.MdRippleModule.forRoot(),
@@ -12212,7 +13424,7 @@ exports.Md2Module = (function () {
     };
     return Md2Module;
 }());
-exports.Md2Module = __decorate$30([
+exports.Md2Module = __decorate$31([
     _angular_core.NgModule({
         imports: MD2_MODULES,
         exports: MD2_MODULES,
@@ -12275,6 +13487,7 @@ exports.MAT_ELEMENTS_SELECTOR = MAT_ELEMENTS_SELECTOR;
 exports.MD_ELEMENTS_SELECTOR = MD_ELEMENTS_SELECTOR;
 exports.AnimationCurves = AnimationCurves;
 exports.AnimationDurations = AnimationDurations;
+exports.DateUtil = DateUtil;
 exports.MD2_ACCORDION_DIRECTIVES = MD2_ACCORDION_DIRECTIVES;
 exports.Item = Item;
 exports.MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR = MD2_AUTOCOMPLETE_CONTROL_VALUE_ACCESSOR;
@@ -12294,17 +13507,14 @@ exports.SliderDimension = SliderDimension;
 exports.MD2_COLORPICKER_DIRECTIVES = MD2_COLORPICKER_DIRECTIVES;
 exports.Md2PaginationChange = Md2PaginationChange;
 exports.MD2_DATA_TABLE_DIRECTIVES = MD2_DATA_TABLE_DIRECTIVES;
-exports.Md2DateChange = Md2DateChange;
-exports.CLOCK_HOURS = CLOCK_HOURS;
-exports.CLOCK_MINUTES = CLOCK_MINUTES;
+exports.Md2DateChange = Md2DateChange$1;
 exports.CLOCK_RADIUS = CLOCK_RADIUS;
 exports.CLOCK_INNER_RADIUS = CLOCK_INNER_RADIUS;
 exports.CLOCK_OUTER_RADIUS = CLOCK_OUTER_RADIUS;
 exports.CLOCK_TICK_RADIUS = CLOCK_TICK_RADIUS;
-exports.DateUtil = DateUtil;
 exports.Md2DialogConfig = Md2DialogConfig;
 exports.MD2_DIALOG_DIRECTIVES = MD2_DIALOG_DIRECTIVES;
-exports.fadeInContent = fadeInContent;
+exports.fadeInContent = fadeInContent$1;
 exports.transformPanel = transformPanel;
 exports.transformPlaceholder = transformPlaceholder;
 exports.SELECT_OPTION_HEIGHT = SELECT_OPTION_HEIGHT;
