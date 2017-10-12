@@ -8,8 +8,8 @@
       <md2-calendar
         name="startCalendar"
         [(ngModel)]="startDate"
-        [disabled]="isDisabled"
-        [required]="isRequired"
+        [disabled]="disabled"
+        [required]="required"
         [minDate]="startMinDate"
         [maxDate]="startMaxDate"
         (change)="startDateChanged()"
@@ -26,8 +26,8 @@
       <md2-calendar
         name="endCalendar"
         [(ngModel)]="endDate"
-        [disabled]="isDisabled"
-        [required]="isRequired"
+        [disabled]="disabled"
+        [required]="required"
         [minDate]="endMinDate"
         [maxDate]="endMaxDate"
         (change)="endDateChanged()"
